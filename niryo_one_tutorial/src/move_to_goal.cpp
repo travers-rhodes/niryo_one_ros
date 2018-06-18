@@ -1,4 +1,4 @@
-#include <moveit/move_group_interface/move_group_interface.h>
+#include <moveit/move_group_interface/move_group.h>
 
 int main(int argc, char** argv)
 {
