@@ -1,0 +1,1 @@
+rosrun moveit_ikfast create_ikfast_moveit_plugin.py niryo_one arm niryo_ikfast_plugin /home/travers/niryo_ws/src/niryo_ikfast_plugin/src/niryo_one_arm_ikfast_solver.cpp
