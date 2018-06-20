@@ -126,9 +126,9 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/niryo_one_tutorial.cpp
-# )
+add_library(${PROJECT_NAME}
+   src/jacobian_controller.cpp
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -152,6 +152,11 @@ add_executable(track_pose_service src/track_pose_service.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(track_pose_service
+   niryo_one_tutorial
+   ${catkin_LIBRARIES}
+)
+
+target_link_libraries(niryo_one_tutorial
    ${catkin_LIBRARIES}
 )
 
