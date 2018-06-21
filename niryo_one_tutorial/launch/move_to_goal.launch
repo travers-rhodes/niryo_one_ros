@@ -3,7 +3,8 @@
     <arg name="load_robot_description" value="true"/>
   </include>
 
-  <node name="move_to_goal" pkg="niryo_one_tutorial" type="move_to_goal" respawn="false" output="screen">
+  <node name="track_pose_service" pkg="niryo_one_tutorial" type="track_pose_service" respawn="false" output="screen">
+<!--launch-prefix="/home/travers/run_tmux.sh">-->
     <rosparam command="load"
               file="$(find niryo_one_moveit_config)/config/kinematics.yaml"/>
   </node>

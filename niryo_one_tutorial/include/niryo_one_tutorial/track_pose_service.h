@@ -14,7 +14,8 @@ class TrackPoseService
     void run_tracking();
  
   private:
-    geometry_msgs::Pose *target_pose;
-    JacobianController *controller;    
+    geometry_msgs::Pose target_pose;
+    JacobianController controller;
+    bool is_active;
 };
 

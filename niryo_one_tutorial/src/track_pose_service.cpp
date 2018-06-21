@@ -1,21 +1,21 @@
 #include <niryo_one_tutorial/track_pose_service.h>
 
-TrackPoseService::TrackPoseService()
+TrackPoseService::TrackPoseService() : controller()
 {
-  JacobianController new_controller;
-  controller = &new_controller;
+  is_active = false;
 }
 
 void TrackPoseService::run_tracking()
 {
-  ros::Rate r(50);
+  ros::Rate r(1);
   while (ros::ok())
   {
+    //std::cout << "running tracking!" << std::endl;
     try
     {
-      if(target_pose)
+      if(is_active)
       {
-        controller->make_step_to_target_pose(*target_pose);
+        controller.make_step_to_target_pose(target_pose);
       }
     }
     catch(...)
@@ -23,6 +23,7 @@ void TrackPoseService::run_tracking()
       std::cout << "You hit an error!";
       throw;
     }
+    ros::spinOnce();
     r.sleep();
   }
 }
@@ -32,12 +33,13 @@ bool TrackPoseService::handle_target_update(niryo_one_tutorial::TrackPose::Reque
 {
   if(req.stopMotion)
   {
-    target_pose = NULL;
+    is_active = false;
   }
   else
   {
     geometry_msgs::Pose target_copy(req.target);
-    target_pose = &target_copy;
+    target_pose = target_copy;
+    is_active = true;
   }
   res.success = true;
 }
@@ -49,7 +51,7 @@ int main(int argc, char **argv)
 
   TrackPoseService trackPoseService;
   ros::ServiceServer service = n.advertiseService("update_pose_target", &TrackPoseService::handle_target_update, &trackPoseService);
-  ros::spin();
+  trackPoseService.run_tracking();
 
   return 0;
 }

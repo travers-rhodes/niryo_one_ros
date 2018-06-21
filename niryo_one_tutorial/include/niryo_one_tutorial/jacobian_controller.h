@@ -14,9 +14,11 @@ class JacobianController
     void move_to_target_pose(const Eigen::Affine3d &target_pose);
 
   private:
-    Eigen::Affine3d *current_pose;
+    Eigen::Affine3d current_pose;
     unsigned long current_time;
     robot_state::RobotStatePtr kinematic_state;
     const robot_state::JointModelGroup* joint_model_group;
     Eigen::Affine3d get_pseudo_end_pose(Eigen::Translation3d, Eigen::Quaterniond);
+    robot_model::RobotModelPtr kinematic_model;
+    robot_model_loader::RobotModelLoader robot_model_loader;
 };
