@@ -68,7 +68,8 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   Eigen::Quaterniond cur_quat(current_pose.rotation());
   Eigen::Translation3d target_trans(target_pose.translation());
   Eigen::Quaterniond target_quat(target_pose.rotation());
-  Eigen::Translation3d trans_diff = cur_trans.inverse() * target_trans;
+  Eigen::Translation3d trans_matrix = cur_trans.inverse() * target_trans;
+  Eigen::Vector3d trans_diff = trans_matrix.translation();
   Eigen::Quaterniond rot_diff =  cur_quat.inverse() * target_quat;
   Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
   
@@ -80,7 +81,7 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   if (trans_dist > TRANS_STEP_SIZE)
   {
     double step_scale = TRANS_STEP_SIZE / trans_dist;
-    trans_dist = trans_dist * step_scale;
+    trans_diff = trans_diff * step_scale;
     rot_angle = rot_angle * step_scale;
     std::cout << "Translation was larger than TRANS_STEP_SIZE, so only going " << step_scale << " of the waythere";
   }
@@ -89,7 +90,7 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   if (rot_angle > ANGLE_STEP_SIZE)
   {
     double angle_step_scale = ANGLE_STEP_SIZE / rot_angle;
-    trans_dist = trans_dist * angle_step_scale;
+    trans_diff = trans_diff * angle_step_scale;
     rot_angle = rot_angle * angle_step_scale;
     std::cout << "Rotation was larger than ANGLE_STEP_SIZE, so only going " << angle_step_scale << " of the waythere";
   }
@@ -103,7 +104,7 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
     jacobian);
 
   Eigen::Matrix<double, 6, 1> target_delta;
-  target_delta << target_pose.translation(), rot_angle * rot_axis;
+  target_delta << trans_diff, rot_angle * rot_axis;
 
   //https://eigen.tuxfamily.org/dox/group__LeastSquares.html
   Eigen::VectorXd joint_delta = (jacobian.transpose() * jacobian).ldlt().solve(jacobian.transpose() * target_delta);
