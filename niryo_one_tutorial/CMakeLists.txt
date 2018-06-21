@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   message_generation
   geometry_msgs
+  serial
 )
 
 ## System dependencies are found with CMake's conventions
@@ -128,6 +129,7 @@ include_directories(
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
    src/jacobian_controller.cpp
+   src/domus_interface.cpp
 )
 
 ## Add cmake target dependencies of the library

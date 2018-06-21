@@ -17,7 +17,7 @@ double distance(const Eigen::Translation3d &cur_trans, const Eigen::Translation3
   return std::sqrt(std::pow(diff.x(), 2) + std::pow(diff.y(), 2) + std::pow(diff.z(),2));
 }
 
-JacobianController::JacobianController() : robot_model_loader("robot_description")
+JacobianController::JacobianController() : robot_model_loader("robot_description"), domus_interface()
 {
   kinematic_model = robot_model_loader.getModel();
 
@@ -109,5 +109,17 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   //https://eigen.tuxfamily.org/dox/group__LeastSquares.html
   Eigen::VectorXd joint_delta = (jacobian.transpose() * jacobian).ldlt().solve(jacobian.transpose() * target_delta);
   std::cout << "heading to " << joint_delta << std::endl;
+  std::vector<double> current_joint_values;
+  kinematic_state->copyJointGroupPositions(joint_model_group, current_joint_values);
+  for(std::size_t i = 0; i < 6; ++i)
+  {
+    ROS_INFO("Joint : %f", current_joint_values[i]);
+  }
+  std::vector<double> new_joint_values(6);
+  for(std::size_t i = 0; i < 6; ++i)
+  {
+    new_joint_values[i] = joint_delta(i) + current_joint_values[i];
+  }
+  domus_interface.SendTargetAngles(new_joint_values);
   return;
 }

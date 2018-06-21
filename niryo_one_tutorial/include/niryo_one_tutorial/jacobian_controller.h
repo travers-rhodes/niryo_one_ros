@@ -5,6 +5,7 @@
 #include <geometry_msgs/Pose.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
+#include <niryo_one_tutorial/domus_interface.h>
 
 class JacobianController
 {
@@ -21,4 +22,5 @@ class JacobianController
     Eigen::Affine3d get_pseudo_end_pose(Eigen::Translation3d, Eigen::Quaterniond);
     robot_model::RobotModelPtr kinematic_model;
     robot_model_loader::RobotModelLoader robot_model_loader;
+    DomusInterface domus_interface;
 };
