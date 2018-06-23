@@ -53,12 +53,8 @@ DomusInterface::SendTargetAngles(const std::vector<double> &joint_angles)
     command[joint_index * 2 + 2] = joint_temp & 0xff;
   }
   ROS_WARN_STREAM("got my command ready"<<unsigned(command[0])
-   <<","<<unsigned(command[1])
-   <<","<<unsigned(command[2])
-   <<","<<unsigned(command[3])
-   <<","<<unsigned(command[4])
-   <<","<<unsigned(command[5])
-   <<","<<unsigned(command[6])
+   <<","<<unsigned(command[11])
+   <<","<<unsigned(command[12])
    <<std::endl);
 
   // OpCode + 6 angles * 2 bytes
