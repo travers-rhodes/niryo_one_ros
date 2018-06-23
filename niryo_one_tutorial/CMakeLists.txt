@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   message_generation
   geometry_msgs
+  std_msgs
   serial
 )
 
@@ -53,11 +54,10 @@ add_definitions(${EIGEN_DEFINITIONS})
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  JointAngles.msg
+)
 
 ## Generate services in the 'srv' folder
 add_service_files(
@@ -76,7 +76,7 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
   geometry_msgs
-  #moveit_msgs
+  std_msgs
 )
 
 ################################################
@@ -141,6 +141,7 @@ add_library(${PROJECT_NAME}
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(track_pose_service src/track_pose_service.cpp)
+add_executable(domus_controller src/domus_controller.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -154,6 +155,11 @@ add_executable(track_pose_service src/track_pose_service.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(track_pose_service
+   niryo_one_tutorial
+   ${catkin_LIBRARIES}
+)
+
+target_link_libraries(domus_controller
    niryo_one_tutorial
    ${catkin_LIBRARIES}
 )
