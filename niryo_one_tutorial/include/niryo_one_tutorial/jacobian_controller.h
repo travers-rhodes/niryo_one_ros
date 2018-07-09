@@ -20,12 +20,11 @@ class JacobianController
     Eigen::Affine3d get_pseudo_end_pose(Eigen::Translation3d, Eigen::Quaterniond);
     void publish_robot_state();
 
-    Eigen::Affine3d current_pose;
-    unsigned long current_time;
+    Eigen::Affine3d current_pose_;
     robot_state::RobotStatePtr kinematic_state_;
     const robot_state::JointModelGroup* joint_model_group_;
-    robot_model::RobotModelPtr kinematic_model;
-    robot_model_loader::RobotModelLoader robot_model_loader;
+    robot_model::RobotModelPtr kinematic_model_;
+    robot_model_loader::RobotModelLoader robot_model_loader_;
     ros::Publisher joint_pub_;
     sensor_msgs::JointState joint_state_;
     DomusInterface* domus_interface_;

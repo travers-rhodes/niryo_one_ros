@@ -3,6 +3,9 @@
 
 const uint8_t REQUEST_JOINT_ANGLES = 136;
 
+std::vector<double> max_joint_angles{ 2.7, 0 + 0.64, 2.1 - 1.35, 2.7, 2.4, 2.5 };
+std::vector<double> min_joint_angles{ -2.7, -2.3 + 0.64, 0 - 1.35, -2.7, -2.4, -2.5 };
+
 
 DomusInterface::DomusInterface()
 {
@@ -30,6 +33,13 @@ DomusInterface::InitializeConnection()
 void
 DomusInterface::SendTargetAngles(const std::vector<double> &joint_angles)
 {
+  for (int i = 0; i < joint_angles.size(); i++) {
+    if (joint_angles[i] > max_joint_angles[i] || joint_angles[i] < min_joint_angles[i]) 
+    {
+      ROS_ERROR_STREAM("The requested joint " << i << " was " << joint_angles[i] << " which is past the joint limits.");
+      return;
+    }
+  }
   ros::Rate r(100);
   // OpCode + 6 angles * 2 bytes
   uint8_t command[13];

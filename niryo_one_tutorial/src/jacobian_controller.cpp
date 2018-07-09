@@ -2,21 +2,25 @@
 
 const double TRANS_EPSILON = 0.01;
 const double QUAT_EPSILON = 0.01;
-const double ANGLE_STEP_SIZE = 0.001;
+const double ANGLE_STEP_SIZE = 0.01;
 const double TRANS_STEP_SIZE = 0.01;
 
 //constructor
 JacobianController::JacobianController(DomusInterface* domus_interface, ros::NodeHandle* n) 
-  : robot_model_loader("robot_description")
+  : robot_model_loader_("robot_description")
 {
-  kinematic_model = robot_model_loader.getModel();
+  kinematic_model_ = robot_model_loader_.getModel();
   domus_interface_ = domus_interface;
   domus_interface_->InitializeConnection();
 
-  kinematic_state_ = robot_state::RobotStatePtr(new robot_state::RobotState(kinematic_model));
+  kinematic_state_ = robot_state::RobotStatePtr(new robot_state::RobotState(kinematic_model_));
   kinematic_state_->setToDefaultValues();
-  joint_model_group_ = kinematic_model->getJointModelGroup("arm");
-  const moveit::core::LinkModel *link_model = kinematic_state_->getLinkModel("hand_link");
+
+  joint_model_group_ = kinematic_model_->getJointModelGroup("arm");
+
+  std::vector<double> initial_joint_values { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  domus_interface->SendTargetAngles(initial_joint_values);
+  kinematic_state_->setJointGroupPositions(joint_model_group_, initial_joint_values);  
 
   // set up joint publishing
   joint_pub_ = n->advertise<sensor_msgs::JointState>("/domus/robot/joint_states", 1);
@@ -36,8 +40,8 @@ JacobianController::make_step_to_target_pose(const geometry_msgs::Pose &target_p
                                     target_pose.position.y,
                                     target_pose.position.z);
 
-  Eigen::Translation3d cur_trans(current_pose.translation());
-  Eigen::Quaterniond cur_quat(current_pose.rotation());
+  Eigen::Translation3d cur_trans(current_pose_.translation());
+  Eigen::Quaterniond cur_quat(current_pose_.rotation());
   double quat_dist = quat_distance(cur_quat, target_quat);
   double trans_dist = distance(cur_trans, target_trans);
   //std::cout << trans_dist << " is the translation distance. " << quat_dist << " is the quat dist" << std::endl;
@@ -64,8 +68,8 @@ JacobianController::get_pseudo_end_pose(Eigen::Translation3d target_trans, Eigen
 void
 JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
 {
-  Eigen::Translation3d cur_trans(current_pose.translation());
-  Eigen::Quaterniond cur_quat(current_pose.rotation());
+  Eigen::Translation3d cur_trans(current_pose_.translation());
+  Eigen::Quaterniond cur_quat(current_pose_.rotation());
   Eigen::Translation3d target_trans(target_pose.translation());
   Eigen::Quaterniond target_quat(target_pose.rotation());
   Eigen::Translation3d trans_matrix = cur_trans.inverse() * target_trans;
@@ -129,7 +133,7 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   domus_interface_->SendTargetAngles(new_joint_values);
   ros::Duration(0.1).sleep();
   kinematic_state_->setJointGroupPositions(joint_model_group_, new_joint_values);  
-  current_pose = kinematic_state_->getGlobalLinkTransform("hand_link");
+  current_pose_ = kinematic_state_->getGlobalLinkTransform("hand_link");
   publish_robot_state();
   return;
 }

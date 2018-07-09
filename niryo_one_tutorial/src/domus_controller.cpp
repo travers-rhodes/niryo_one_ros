@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <niryo_one_tutorial/domus_interface.h>
+#include <niryo_one_tutorial/mock_domus_interface.h>
 #include <niryo_one_tutorial/JointAngles.h>
 
 DomusInterface domus;
@@ -16,6 +17,7 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "domus_controller");
   ros::NodeHandle n;
+  domus.InitializeConnection();
   ros::Subscriber sub = n.subscribe("set_joint_angles", 10, set_angles_callback);
   ros::spin();
   return 0; 
