@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
 # find_package(Boost REQUIRED COMPONENTS system)
 ## https://github.com/wsnewman/learning_ros/blob/master/Part_2/example_eigen/CMakeLists.txt
 find_package(Eigen3 REQUIRED)
+find_package(rostest REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
 add_definitions(${EIGEN_DEFINITIONS})
 
@@ -132,6 +133,7 @@ add_library(${PROJECT_NAME}
    src/jacobian_controller.cpp
    src/domus_interface.cpp
    src/mock_domus_interface.cpp
+   src/transform_helpers.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -210,10 +212,10 @@ target_link_libraries(niryo_one_tutorial
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_niryo_one_tutorial.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
+catkin_add_gtest(utest test/utest.cpp)
+if(TARGET utest)
+  target_link_libraries(utest ${PROJECT_NAME})
+endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)

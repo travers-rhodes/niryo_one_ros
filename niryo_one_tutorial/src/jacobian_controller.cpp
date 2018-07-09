@@ -2,23 +2,8 @@
 
 const double TRANS_EPSILON = 0.01;
 const double QUAT_EPSILON = 0.01;
-const double ANGLE_STEP_SIZE = 0.01;
+const double ANGLE_STEP_SIZE = 0.001;
 const double TRANS_STEP_SIZE = 0.01;
-
-//Helper functions 
-double quat_distance(const Eigen::Quaterniond &cur_quat, const Eigen::Quaterniond &end_quat)
-{
-  Eigen::Quaterniond diff =  cur_quat.inverse() * end_quat;
-  Eigen::AngleAxisd rot_axis_angle(diff);
-  double rot_angle = rot_axis_angle.angle();
-  return rot_angle; 
-}
-
-double distance(const Eigen::Translation3d &cur_trans, const Eigen::Translation3d &end_trans)
-{
-  Eigen::Translation3d diff = cur_trans.inverse() * end_trans;
-  return std::sqrt(std::pow(diff.x(), 2) + std::pow(diff.y(), 2) + std::pow(diff.z(),2));
-}
 
 //constructor
 JacobianController::JacobianController(DomusInterface* domus_interface, ros::NodeHandle* n) 
@@ -44,6 +29,9 @@ JacobianController::make_step_to_target_pose(const geometry_msgs::Pose &target_p
                               target_pose.orientation.x,
                               target_pose.orientation.y, 
                               target_pose.orientation.z);
+  // because this is coming in from a ROS topic, they might not have properly normalized it when typing
+  // in the desired quaternion...Travers
+  target_quat.normalize();
   Eigen::Translation3d target_trans(target_pose.position.x,
                                     target_pose.position.y,
                                     target_pose.position.z);
@@ -53,6 +41,7 @@ JacobianController::make_step_to_target_pose(const geometry_msgs::Pose &target_p
   double quat_dist = quat_distance(cur_quat, target_quat);
   double trans_dist = distance(cur_trans, target_trans);
   //std::cout << trans_dist << " is the translation distance. " << quat_dist << " is the quat dist" << std::endl;
+  //std::cout << target_quat.w() << "," <<  target_quat.vec() << " is the target quat. " << cur_quat.w() << "," << target_quat.vec() << " is the current quat" << std::endl;
   if (trans_dist < TRANS_EPSILON &&
       quat_dist < QUAT_EPSILON)
   {
@@ -81,9 +70,12 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   Eigen::Quaterniond target_quat(target_pose.rotation());
   Eigen::Translation3d trans_matrix = cur_trans.inverse() * target_trans;
   Eigen::Vector3d trans_diff = trans_matrix.translation();
-  Eigen::Quaterniond rot_diff =  cur_quat.inverse() * target_quat;
+  Eigen::Quaterniond rot_diff =  target_quat * cur_quat.inverse();
   Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
   
+  double quat_dist = quat_distance(cur_quat, target_quat);
+  std::cout << target_quat.w() << "," <<  target_quat.vec() << " is the target quat. " << cur_quat.w() << "," << target_quat.vec() << " is the current quat" << std::endl;
+  std::cout << "Quat dist is now " << quat_dist << std::endl;
   double trans_dist = distance(cur_trans, target_trans);
   Eigen::AngleAxisd rot_axis_angle(rot_diff);
   double rot_angle = rot_axis_angle.angle();
@@ -94,16 +86,17 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
     double step_scale = TRANS_STEP_SIZE / trans_dist;
     trans_diff = trans_diff * step_scale;
     rot_angle = rot_angle * step_scale;
-    std::cout << "Translation was larger than TRANS_STEP_SIZE, so only going " << step_scale << " of the waythere";
+    std::cout << "Translation was larger than TRANS_STEP_SIZE, so only going " << step_scale << " of the waythere" << std::endl;
   }
   
   std::cout << rot_angle << " is the rotation distance. angle step size is" << ANGLE_STEP_SIZE << std::endl;
+  std::cout << "The rotation axis is" << rot_axis << std::endl;
   if (rot_angle > ANGLE_STEP_SIZE)
   {
     double angle_step_scale = ANGLE_STEP_SIZE / rot_angle;
     trans_diff = trans_diff * angle_step_scale;
     rot_angle = rot_angle * angle_step_scale;
-    std::cout << "Rotation was larger than ANGLE_STEP_SIZE, so only going " << angle_step_scale << " of the waythere";
+    std::cout << "Rotation was larger than ANGLE_STEP_SIZE, so only going " << angle_step_scale << " of the waythere" << std::endl;
   }
   
   Eigen::Vector3d reference_point_position(0.0,0.0,0.0);
@@ -118,7 +111,9 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   target_delta << trans_diff, rot_angle * rot_axis;
 
   //https://eigen.tuxfamily.org/dox/group__LeastSquares.html
-  Eigen::VectorXd joint_delta = (jacobian.transpose() * jacobian).ldlt().solve(jacobian.transpose() * target_delta);
+  // with the extra addition that we use a tiny regularization term to reduce problems due to singularities, so we're solving (J^T J + lambda * I)^-1 J^T Y
+  double lambda = 0.1;
+  Eigen::VectorXd joint_delta = (jacobian.transpose() * jacobian + (lambda * Eigen::MatrixXd::Identity(6,6))).ldlt().solve(jacobian.transpose() * target_delta);
   std::cout << "heading to " << joint_delta << std::endl;
   std::vector<double> current_joint_values;
   kinematic_state_->copyJointGroupPositions(joint_model_group_, current_joint_values);

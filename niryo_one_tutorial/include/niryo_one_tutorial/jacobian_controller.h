@@ -7,6 +7,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 #include <niryo_one_tutorial/domus_interface.h>
+#include <niryo_one_tutorial/transform_helpers.h>
 
 class JacobianController
 {
