@@ -1,13 +1,13 @@
 #include <niryo_one_tutorial/track_pose_service.h>
 
-TrackPoseService::TrackPoseService() : controller()
+TrackPoseService::TrackPoseService(DomusInterface* domus_interface, ros::NodeHandle* n) : controller(domus_interface, n)
 {
   is_active = false;
 }
 
 void TrackPoseService::run_tracking()
 {
-  ros::Rate r(1);
+  ros::Rate r(10);
   while (ros::ok())
   {
     //std::cout << "running tracking!" << std::endl;
@@ -48,10 +48,21 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "track_pose_server");
   ros::NodeHandle n;
+  bool isSimulation;
+  ros::param::get("~sim", isSimulation);
 
-  TrackPoseService trackPoseService;
+  DomusInterface* domus_interface;
+  if (isSimulation){
+    ROS_INFO_STREAM("Whether we are simulating" << isSimulation << std::endl);
+    domus_interface = new MockDomusInterface();
+  } else {
+    domus_interface = new DomusInterface();
+  }
+
+  TrackPoseService trackPoseService(domus_interface, &n);
   ros::ServiceServer service = n.advertiseService("update_pose_target", &TrackPoseService::handle_target_update, &trackPoseService);
   trackPoseService.run_tracking();
 
+  delete domus_interface;
   return 0;
 }

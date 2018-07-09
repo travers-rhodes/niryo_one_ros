@@ -7,7 +7,8 @@ class DomusInterface
 {
   public:
     DomusInterface();
-    void SendTargetAngles(const std::vector<double> &joint_angles);
+    virtual void InitializeConnection();
+    virtual void SendTargetAngles(const std::vector<double> &joint_angles);
   private:
     serial::Serial ser;
 };

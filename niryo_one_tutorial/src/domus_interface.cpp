@@ -4,7 +4,12 @@
 const uint8_t REQUEST_JOINT_ANGLES = 136;
 
 
-DomusInterface::DomusInterface() : ser()
+DomusInterface::DomusInterface()
+{
+}
+
+void
+DomusInterface::InitializeConnection()
 {
   // https://github.com/ros-drivers/um6/blob/indigo-devel/src/main.cpp
   ser.setPort("/dev/ttyACM0");

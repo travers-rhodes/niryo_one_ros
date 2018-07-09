@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   message_generation
   geometry_msgs
+  sensor_msgs
   std_msgs
   serial
 )
@@ -130,6 +131,7 @@ include_directories(
 add_library(${PROJECT_NAME}
    src/jacobian_controller.cpp
    src/domus_interface.cpp
+   src/mock_domus_interface.cpp
 )
 
 ## Add cmake target dependencies of the library
