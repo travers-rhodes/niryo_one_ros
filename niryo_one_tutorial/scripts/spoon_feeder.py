@@ -10,6 +10,8 @@ from geometry_msgs.msg import Quaternion
 
 class SpoonFeeder:
   def __init__(self):
+    rospy.logwarn("sleeping for 5 seconds before starting feeding")
+    rospy.sleep(5)
     self.defaultQuat = Quaternion(0.5, 0.5, 0.5, 0.5)
     self.tracker = tracker.TrackerInterface(self.defaultQuat)
     self.play_trajectory_topic = "/Tapo/example_poses"
@@ -31,11 +33,11 @@ class SpoonFeeder:
 
   def _update_tracker_based_on_state(self):
     if self.state == State.MOVE_TO_PLATE: 
-      self.tracker.start_tracking_fixed_target([0.2,-0.2,0.1])
+      self.tracker.start_tracking_fixed_target([0.2,0,0.1])
       self.is_first_move_to_plate = False
     elif self.state == State.PICK_UP_FOOD:
       self.xoffset = 0.03-0.1
-      self.yoffset = 0.015+0.1
+      self.yoffset = 0.015+0.3
       self.zoffset = -0.04+0.05
       self.tracker.start_updating_target_to_pose(self.play_trajectory_topic,[self.xoffset, self.yoffset, self.zoffset])
       self._play_trajectory(String(self.play_trajectory_topic))
