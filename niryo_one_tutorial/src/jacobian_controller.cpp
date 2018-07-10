@@ -21,9 +21,11 @@ JacobianController::JacobianController(DomusInterface* domus_interface, ros::Nod
   std::vector<double> initial_joint_values { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
   domus_interface->SendTargetAngles(initial_joint_values);
   kinematic_state_->setJointGroupPositions(joint_model_group_, initial_joint_values);  
+  current_pose_ = kinematic_state_->getGlobalLinkTransform("hand_link");
 
   // set up joint publishing
   joint_pub_ = n->advertise<sensor_msgs::JointState>("/domus/robot/joint_states", 1);
+  dist_pub_ = n->advertise<std_msgs::Float64>("/distance_to_target", 1);
 }
 
 void
@@ -33,6 +35,7 @@ JacobianController::make_step_to_target_pose(const geometry_msgs::Pose &target_p
                               target_pose.orientation.x,
                               target_pose.orientation.y, 
                               target_pose.orientation.z);
+
   // because this is coming in from a ROS topic, they might not have properly normalized it when typing
   // in the desired quaternion...Travers
   target_quat.normalize();
@@ -46,13 +49,19 @@ JacobianController::make_step_to_target_pose(const geometry_msgs::Pose &target_p
   double trans_dist = distance(cur_trans, target_trans);
   //std::cout << trans_dist << " is the translation distance. " << quat_dist << " is the quat dist" << std::endl;
   //std::cout << target_quat.w() << "," <<  target_quat.vec() << " is the target quat. " << cur_quat.w() << "," << target_quat.vec() << " is the current quat" << std::endl;
+  std_msgs::Float64 msg;
   if (trans_dist < TRANS_EPSILON &&
       quat_dist < QUAT_EPSILON)
   {
     //no need to move
-    //publish current pose
+    //publish current pose (we say we are there, so publish a distance of 0)
+    msg.data = 0.0;
+    dist_pub_.publish(msg); 
     return;
   }
+  msg.data = 1.0;
+  // we aren't there yet, so we just publish a distance of 1
+  dist_pub_.publish(msg); 
   Eigen::Affine3d pseudo_end_pose = get_pseudo_end_pose(target_trans, target_quat);
   move_to_target_pose(pseudo_end_pose);  
 }
@@ -85,11 +94,16 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   double rot_angle = rot_axis_angle.angle();
   Eigen::Vector3d rot_axis = rot_axis_angle.axis();
   std::cout << trans_dist << " is the translation distance. trans step size is " << TRANS_STEP_SIZE << std::endl;
+  // cylindrical_diff is of the form dR, dTheta, dZ
+  // where R is sqrt(x^2 + y^2), theta is arctan2(y,x), and z is z
+  Eigen::Vector3d cylindrical_diff = get_cylindrical_point_translation(cur_trans.translation(), target_trans.translation());
+
   if (trans_dist > TRANS_STEP_SIZE)
   {
     double step_scale = TRANS_STEP_SIZE / trans_dist;
     trans_diff = trans_diff * step_scale;
     rot_angle = rot_angle * step_scale;
+    cylindrical_diff = cylindrical_diff * step_scale;
     std::cout << "Translation was larger than TRANS_STEP_SIZE, so only going " << step_scale << " of the waythere" << std::endl;
   }
   
@@ -100,19 +114,17 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
     double angle_step_scale = ANGLE_STEP_SIZE / rot_angle;
     trans_diff = trans_diff * angle_step_scale;
     rot_angle = rot_angle * angle_step_scale;
+    cylindrical_diff = cylindrical_diff * angle_step_scale;
     std::cout << "Rotation was larger than ANGLE_STEP_SIZE, so only going " << angle_step_scale << " of the waythere" << std::endl;
   }
   
-  Eigen::Vector3d reference_point_position(0.0,0.0,0.0);
-  Eigen::MatrixXd jacobian;
-  const moveit::core::LinkModel *link_model = kinematic_state_->getLinkModel("hand_link");
-  kinematic_state_->getJacobian(joint_model_group_,
-    link_model,
-    reference_point_position,
-    jacobian);
+  Eigen::MatrixXd jacobian = get_cylindrical_jacobian();
 
+  std::cout << "jacobian was computed to be" << jacobian << std::endl; 
+
+  // get a single column vector of the translation and rotation we want to achieve
   Eigen::Matrix<double, 6, 1> target_delta;
-  target_delta << trans_diff, rot_angle * rot_axis;
+  target_delta << cylindrical_diff, rot_angle * rot_axis;
 
   //https://eigen.tuxfamily.org/dox/group__LeastSquares.html
   // with the extra addition that we use a tiny regularization term to reduce problems due to singularities, so we're solving (J^T J + lambda * I)^-1 J^T Y
@@ -136,6 +148,27 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   current_pose_ = kinematic_state_->getGlobalLinkTransform("hand_link");
   publish_robot_state();
   return;
+}
+
+// The jacobian in cylindrical coordinates
+Eigen::MatrixXd
+JacobianController::get_cylindrical_jacobian()
+{
+  Eigen::Vector3d reference_point_position(0.0,0.0,0.0);
+  Eigen::MatrixXd jacobian;
+  const moveit::core::LinkModel *link_model = kinematic_state_->getLinkModel("hand_link");
+  kinematic_state_->getJacobian(joint_model_group_,
+    link_model,
+    reference_point_position,
+    jacobian);
+  std::cout << "rect_jacob "<< jacobian << std::endl; 
+
+  Eigen::Vector3d cur_trans(current_pose_.translation());
+  Eigen::Matrix<double,6,6> rect_to_cyl_jacob = compute_jacob_from_rect_to_cyl(cur_trans);
+  std::cout << "rect_to_cyl_jacob" << rect_to_cyl_jacob << std::endl; 
+  
+  Eigen::Matrix<double,6,6> cyl_jacobian = rect_to_cyl_jacob * jacobian;
+  return cyl_jacobian;
 }
 
 void

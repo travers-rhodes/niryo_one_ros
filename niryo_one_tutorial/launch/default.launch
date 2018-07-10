@@ -1,4 +1,7 @@
 <launch>
+  <!-- start up the camera -->
+  <!--<include file="$(find ueye_cam)/launch/xs_bayer_rggb.launch"/>-->
+  <!--<node name="spoon_service" pkg="spoon_perception" type="perception_node.py"/>-->
 
   <include file="$(find niryo_one_moveit_config)/launch/planning_context.launch">
     <arg name="load_robot_description" value="true"/>
@@ -10,6 +13,9 @@
               file="$(find niryo_one_moveit_config)/config/kinematics.yaml"/>
     <param name="sim" type="bool" value="$(arg sim)"/>
   </node>
+
+  <node name="spoon_feeder" pkg="niryo_one_tutorial" type="spoon_feeder.py"/> 
+  <node name="play_trajectory_service" pkg="niryo_one_tutorial" type="play_trajectory_server.py"/>
 
   <!--https://answers.ros.org/question/60975/subscribe-to-new-jointstate-messages/-->
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">

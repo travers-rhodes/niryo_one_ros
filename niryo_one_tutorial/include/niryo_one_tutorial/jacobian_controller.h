@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Pose.h>
 #include <sensor_msgs/JointState.h>
+#include <std_msgs/Float64.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 #include <niryo_one_tutorial/domus_interface.h>
@@ -18,6 +19,7 @@ class JacobianController
   private:
     void move_to_target_pose(const Eigen::Affine3d &target_pose);
     Eigen::Affine3d get_pseudo_end_pose(Eigen::Translation3d, Eigen::Quaterniond);
+    Eigen::MatrixXd get_cylindrical_jacobian();
     void publish_robot_state();
 
     Eigen::Affine3d current_pose_;
@@ -26,6 +28,7 @@ class JacobianController
     robot_model::RobotModelPtr kinematic_model_;
     robot_model_loader::RobotModelLoader robot_model_loader_;
     ros::Publisher joint_pub_;
+    ros::Publisher dist_pub_;
     sensor_msgs::JointState joint_state_;
     DomusInterface* domus_interface_;
 };
