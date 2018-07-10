@@ -75,4 +75,5 @@ DomusInterface::SendTargetAngles(const std::vector<double> &joint_angles)
   // OpCode + 6 angles * 2 bytes
   ser.write(command, 13);
   ser.flush();
+  ROS_WARN_STREAM("command sent");
 }

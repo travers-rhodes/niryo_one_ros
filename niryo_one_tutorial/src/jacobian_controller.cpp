@@ -2,8 +2,9 @@
 
 const double TRANS_EPSILON = 0.01;
 const double QUAT_EPSILON = 0.01;
-const double ANGLE_STEP_SIZE = 0.01;
-const double TRANS_STEP_SIZE = 0.01;
+const double ANGLE_STEP_SIZE = 0.1;
+const double TRANS_STEP_SIZE = 0.04;
+const double MAX_JOINT_STEP = 0.1;
 
 //constructor
 JacobianController::JacobianController(DomusInterface* domus_interface, ros::NodeHandle* n) 
@@ -133,9 +134,19 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   std::cout << "heading to " << joint_delta << std::endl;
   std::vector<double> current_joint_values;
   kinematic_state_->copyJointGroupPositions(joint_model_group_, current_joint_values);
-  for(std::size_t i = 0; i < 6; ++i)
+  // ensure that no joint rotation is larger than MAX_JOINT_STEP at any given time
+  for(int i = 0; i < 6; i++)
   {
-    ROS_INFO("Joint : %f", current_joint_values[i]);
+    double cur_joint_step = std::abs(joint_delta[i]);
+    if (cur_joint_step > MAX_JOINT_STEP)
+    {
+      double scale = MAX_JOINT_STEP / cur_joint_step;
+      std::cout << "We're scaling now, by a factor of " << scale << std::endl;
+      for (int j = 0; j < 6; j++)
+      {
+        joint_delta[j] = joint_delta[j] * scale;
+      }
+    }
   }
   std::vector<double> new_joint_values(6);
   for(std::size_t i = 0; i < 6; ++i)

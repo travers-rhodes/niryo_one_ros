@@ -7,7 +7,7 @@ TrackPoseService::TrackPoseService(DomusInterface* domus_interface, ros::NodeHan
 
 void TrackPoseService::run_tracking()
 {
-  ros::Rate r(10);
+  ros::Rate r(3);
   while (ros::ok())
   {
     //std::cout << "running tracking!" << std::endl;
@@ -23,7 +23,6 @@ void TrackPoseService::run_tracking()
       std::cout << "You hit an error!";
       throw;
     }
-    ros::spinOnce();
     r.sleep();
   }
 }
@@ -58,7 +57,8 @@ int main(int argc, char **argv)
   } else {
     domus_interface = new DomusInterface();
   }
-
+  ros::AsyncSpinner spinner(1); // use 1 thread async for callbacks
+  spinner.start();
   TrackPoseService trackPoseService(domus_interface, &n);
   ros::ServiceServer service = n.advertiseService("update_pose_target", &TrackPoseService::handle_target_update, &trackPoseService);
   trackPoseService.run_tracking();
