@@ -54,13 +54,17 @@
   <build_depend>moveit_ros_planning_interface</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>message_generation</build_depend>
+  <build_depend>serial</build_depend>
   <build_export_depend>moveit_msgs</build_export_depend>
   <build_export_depend>moveit_ros_planning_interface</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>serial</build_export_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>moveit_msgs</exec_depend>
   <exec_depend>moveit_ros_planning_interface</exec_depend>
   <exec_depend>roscpp</exec_depend>
+  <exec_depend>serial</exec_depend>
+  <exec_depend>python-transforms3d-pip</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

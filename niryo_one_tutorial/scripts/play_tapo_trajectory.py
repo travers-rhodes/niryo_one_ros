@@ -20,7 +20,7 @@ def get_sampled_pos_data(rawData):
   sampleIndices = np.arange(0,datShape[0],1)
   # time, px, py, pz, ox, oy, oz
   datIndices = np.array([0,7,8,9,10,11,12])
-  return(rawData[sampleIndices,:][:,datIndices]) 
+  return(rawData[sampleIndices,:][:,datIndices])
 
 # in tapo's data, ox is row[10], oy is row[11], and oz is row[12]
 def get_quat(ox, oy, oz):
@@ -43,7 +43,7 @@ def publish_poses(poseFile, pose_topic):
     curRow = np.argmax((pos_list[:,0]  * slowdown_factor) > curTime) - 1
     #print((pos_list[:,0]  * slowdown_factor) < curTime)
     #print(curRow)
-    curQuat = get_quat(pos_list[curRow,4], 
+    curQuat = get_quat(pos_list[curRow,4],
                        pos_list[curRow,5],
                        pos_list[curRow,6])
     h = Header()
@@ -68,7 +68,7 @@ def publish_poses(poseFile, pose_topic):
   food_acquired_pub = rospy.Publisher("/food_acquired", Bool, queue_size=10)
   # https://github.com/ros/ros_comm/issues/176
   rospy.sleep(1)
-  food_acquired_pub.publish(Bool(True))  
+  food_acquired_pub.publish(Bool(True))
 
 if __name__=="__main__":
   rospy.init_node("simulate_spoon")
