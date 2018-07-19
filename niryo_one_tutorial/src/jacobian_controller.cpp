@@ -3,7 +3,7 @@
 const double TRANS_EPSILON = 0.01;
 const double QUAT_EPSILON = 0.01;
 const double ANGLE_STEP_SIZE = 0.1;
-const double TRANS_STEP_SIZE = 0.04;
+const double TRANS_STEP_SIZE = 0.01;
 const double MAX_JOINT_STEP = 0.1;
 
 //constructor
@@ -27,6 +27,8 @@ JacobianController::JacobianController(DomusInterface* domus_interface, ros::Nod
   // set up joint publishing
   joint_pub_ = n->advertise<sensor_msgs::JointState>("/domus/robot/joint_states", 1);
   dist_pub_ = n->advertise<std_msgs::Float64>("/distance_to_target", 1);
+  std::cout << "Sleeping for 5 seconds to get to initial position";
+  ros::Duration(5).sleep();
 }
 
 void
