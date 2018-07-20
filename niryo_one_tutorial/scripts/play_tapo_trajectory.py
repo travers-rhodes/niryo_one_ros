@@ -56,6 +56,8 @@ def publish_poses(poseFile, pose_topic):
     #rospy.logwarn(curRot)
 
     curQuat = t3d.quaternions.qmult(curQuat,[0,0,1,0])
+    # I wish I had documented the black magic I did here to estimate
+    # the prong location of the fork
     pose = Pose(Point(0.15 + pos2[0], 0.15-pos2[2], pos2[1]),
                 Quaternion(curQuat[1],curQuat[2],curQuat[3],curQuat[0]))
 

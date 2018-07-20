@@ -38,6 +38,10 @@
     <xacro:property name="distance_wrist_hand_y" value="0" />
     <!-- not yet implemented, for now -->
     <xacro:property name="distance_hand_gripper" value="0.00" />
+    <!-- TSR 2018-19-07 Adding info about test spoon-->
+    <xacro:property name="spoon_offset_left" value="0.114" />
+    <xacro:property name="spoon_offset_up" value="0.0" />
+    <xacro:property name="spoon_offset_forward" value="0.031" />
 	
 	<xacro:property name="thickness_arm_axis" value="0.052" />
 	<xacro:property name="thickness_forearm_axis" value="0.048" />
@@ -191,6 +195,8 @@
 	
     <link name="gripper_link">
 	</link>
+    <link name="spoon_link">
+	</link>
 
 
 	<!--Joints -->
@@ -253,6 +259,12 @@
         <parent link="hand_link" />
         <child link="gripper_link" />
         <origin xyz="0 0 ${distance_hand_gripper}" rpy="${-PI/2} ${-PI/2} 0" />
+    </joint>
+
+	<joint name="hand_spoon_joint" type="fixed">
+        <parent link="hand_link" />
+        <child link="spoon_link" />
+        <origin xyz="${spoon_offset_left} ${spoon_offset_up} ${spoon_offset_forward}" rpy="0 0 0" />
 	</joint>
 
 </robot>

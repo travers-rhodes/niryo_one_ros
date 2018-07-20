@@ -3,7 +3,7 @@
 const double TRANS_EPSILON = 0.01;
 const double QUAT_EPSILON = 0.01;
 const double ANGLE_STEP_SIZE = 0.1;
-const double TRANS_STEP_SIZE = 0.01;
+const double TRANS_STEP_SIZE = 0.005;
 const double MAX_JOINT_STEP = 0.1;
 
 //constructor
@@ -20,9 +20,12 @@ JacobianController::JacobianController(DomusInterface* domus_interface, ros::Nod
   joint_model_group_ = kinematic_model_->getJointModelGroup("arm");
 
   std::vector<double> initial_joint_values { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  std::cout << "Waiting to give time for connection to Arduino to be established" << std::endl;
+  ros::Duration(2).sleep();
+  std::cout << "Moving to default position" << std::endl;
   domus_interface->SendTargetAngles(initial_joint_values);
   kinematic_state_->setJointGroupPositions(joint_model_group_, initial_joint_values);  
-  current_pose_ = kinematic_state_->getGlobalLinkTransform("hand_link");
+  current_pose_ = kinematic_state_->getGlobalLinkTransform("spoon_link");
 
   // set up joint publishing
   joint_pub_ = n->advertise<sensor_msgs::JointState>("/domus/robot/joint_states", 1);
@@ -156,9 +159,9 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
     new_joint_values[i] = joint_delta(i) + current_joint_values[i];
   }
   domus_interface_->SendTargetAngles(new_joint_values);
-  ros::Duration(0.1).sleep();
+  ros::Duration(0.05).sleep();
   kinematic_state_->setJointGroupPositions(joint_model_group_, new_joint_values);  
-  current_pose_ = kinematic_state_->getGlobalLinkTransform("hand_link");
+  current_pose_ = kinematic_state_->getGlobalLinkTransform("spoon_link");
   publish_robot_state();
   return;
 }
@@ -169,7 +172,7 @@ JacobianController::get_cylindrical_jacobian()
 {
   Eigen::Vector3d reference_point_position(0.0,0.0,0.0);
   Eigen::MatrixXd jacobian;
-  const moveit::core::LinkModel *link_model = kinematic_state_->getLinkModel("hand_link");
+  const moveit::core::LinkModel *link_model = kinematic_state_->getLinkModel("spoon_link");
   kinematic_state_->getJacobian(joint_model_group_,
     link_model,
     reference_point_position,
