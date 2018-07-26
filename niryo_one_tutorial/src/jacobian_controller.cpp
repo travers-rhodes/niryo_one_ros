@@ -3,7 +3,7 @@
 const double TRANS_EPSILON = 0.01;
 const double QUAT_EPSILON = 0.01;
 const double ANGLE_STEP_SIZE = 0.1;
-const double TRANS_STEP_SIZE = 0.005;
+const double TRANS_STEP_SIZE = 0.05;
 const double MAX_JOINT_STEP = 0.1;
 
 //constructor

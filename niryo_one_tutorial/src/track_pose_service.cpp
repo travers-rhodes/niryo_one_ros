@@ -7,7 +7,7 @@ TrackPoseService::TrackPoseService(DomusInterface* domus_interface, ros::NodeHan
 
 void TrackPoseService::run_tracking()
 {
-  ros::Duration sleep_time(0.05);
+  ros::Duration sleep_time(0.5);
   while (ros::ok())
   {
     //std::cout << "running tracking!" << std::endl;
