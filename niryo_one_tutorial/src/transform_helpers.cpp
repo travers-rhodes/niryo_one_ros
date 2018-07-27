@@ -32,7 +32,7 @@ Eigen::Matrix<double,6,6> compute_jacob_from_rect_to_cyl(const Eigen::Vector3d &
   double z = rect_coord[2]; 
   //validated with http://www.wolframalpha.com/input/?i=d%2Fdx+arctan(y%2Fx)
   double xyr = std::pow(std::pow(x,2.0) + std::pow(y, 2.0), 0.5);
-  std::cout << "we have x,y,z" << x << "," <<y<<","<<z<<","<< " and xyr " << xyr << std::endl;
+  //std::cout << "we have x,y,z" << x << "," <<y<<","<<z<<","<< " and xyr " << xyr << std::endl;
   // yeah, yeah, yeah, this will cause massive problems if we are ever at exactly pi/2, pi, 0, etc. But I think it's worth it? We'll see!
   Eigen::Matrix<double,6,6> rect_to_cyl_jacob;
   rect_to_cyl_jacob  << x/xyr, y/xyr, 0,                           0,0,0,

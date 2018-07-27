@@ -3,7 +3,7 @@
 const double TRANS_EPSILON = 0.01;
 const double QUAT_EPSILON = 0.01;
 const double ANGLE_STEP_SIZE = 0.1;
-const double TRANS_STEP_SIZE = 0.05;
+const double TRANS_STEP_SIZE = 0.01;
 const double MAX_JOINT_STEP = 0.1;
 
 //constructor
@@ -93,13 +93,13 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
   
   double quat_dist = quat_distance(cur_quat, target_quat);
-  std::cout << target_quat.w() << "," <<  target_quat.vec() << " is the target quat. " << cur_quat.w() << "," << target_quat.vec() << " is the current quat" << std::endl;
-  std::cout << "Quat dist is now " << quat_dist << std::endl;
+  //std::cout << target_quat.w() << "," <<  target_quat.vec() << " is the target quat. " << cur_quat.w() << "," << target_quat.vec() << " is the current quat" << std::endl;
+  //std::cout << "Quat dist is now " << quat_dist << std::endl;
   double trans_dist = distance(cur_trans, target_trans);
   Eigen::AngleAxisd rot_axis_angle(rot_diff);
   double rot_angle = rot_axis_angle.angle();
   Eigen::Vector3d rot_axis = rot_axis_angle.axis();
-  std::cout << trans_dist << " is the translation distance. trans step size is " << TRANS_STEP_SIZE << std::endl;
+  //std::cout << trans_dist << " is the translation distance. trans step size is " << TRANS_STEP_SIZE << std::endl;
   // cylindrical_diff is of the form dR, dTheta, dZ
   // where R is sqrt(x^2 + y^2), theta is arctan2(y,x), and z is z
   Eigen::Vector3d cylindrical_diff = get_cylindrical_point_translation(cur_trans.translation(), target_trans.translation());
@@ -107,14 +107,14 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   if (trans_dist > TRANS_STEP_SIZE)
   {
     double step_scale = TRANS_STEP_SIZE / trans_dist;
+    std::cout << "Translation "<< trans_dist << " too large, so only going " << step_scale << " of the waythere" << std::endl;
     trans_diff = trans_diff * step_scale;
     rot_angle = rot_angle * step_scale;
     cylindrical_diff = cylindrical_diff * step_scale;
-    std::cout << "Translation was larger than TRANS_STEP_SIZE, so only going " << step_scale << " of the waythere" << std::endl;
   }
   
-  std::cout << rot_angle << " is the rotation distance. angle step size is" << ANGLE_STEP_SIZE << std::endl;
-  std::cout << "The rotation axis is" << rot_axis << std::endl;
+  //std::cout << rot_angle << " is the rotation distance. angle step size is" << ANGLE_STEP_SIZE << std::endl;
+  //std::cout << "The rotation axis is" << rot_axis << std::endl;
   if (rot_angle > ANGLE_STEP_SIZE)
   {
     double angle_step_scale = ANGLE_STEP_SIZE / rot_angle;
@@ -126,7 +126,7 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   
   Eigen::MatrixXd jacobian = get_cylindrical_jacobian();
 
-  std::cout << "jacobian was computed to be" << jacobian << std::endl; 
+  //std::cout << "jacobian was computed to be" << jacobian << std::endl; 
 
   // get a single column vector of the translation and rotation we want to achieve
   Eigen::Matrix<double, 6, 1> target_delta;
@@ -136,7 +136,7 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   // with the extra addition that we use a tiny regularization term to reduce problems due to singularities, so we're solving (J^T J + lambda * I)^-1 J^T Y
   double lambda = 0.1;
   Eigen::VectorXd joint_delta = (jacobian.transpose() * jacobian + (lambda * Eigen::MatrixXd::Identity(6,6))).ldlt().solve(jacobian.transpose() * target_delta);
-  std::cout << "heading to " << joint_delta << std::endl;
+  //std::cout << "heading to " << joint_delta << std::endl;
   std::vector<double> current_joint_values;
   kinematic_state_->copyJointGroupPositions(joint_model_group_, current_joint_values);
   // ensure that no joint rotation is larger than MAX_JOINT_STEP at any given time
@@ -177,11 +177,11 @@ JacobianController::get_cylindrical_jacobian()
     link_model,
     reference_point_position,
     jacobian);
-  std::cout << "rect_jacob "<< jacobian << std::endl; 
+  //std::cout << "rect_jacob "<< jacobian << std::endl; 
 
   Eigen::Vector3d cur_trans(current_pose_.translation());
   Eigen::Matrix<double,6,6> rect_to_cyl_jacob = compute_jacob_from_rect_to_cyl(cur_trans);
-  std::cout << "rect_to_cyl_jacob" << rect_to_cyl_jacob << std::endl; 
+  //std::cout << "rect_to_cyl_jacob" << rect_to_cyl_jacob << std::endl; 
   
   Eigen::Matrix<double,6,6> cyl_jacobian = rect_to_cyl_jacob * jacobian;
   return cyl_jacobian;
