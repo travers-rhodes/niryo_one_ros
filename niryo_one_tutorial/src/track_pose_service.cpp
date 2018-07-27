@@ -1,13 +1,13 @@
 #include <niryo_one_tutorial/track_pose_service.h>
 
-TrackPoseService::TrackPoseService(DomusInterface* domus_interface, ros::NodeHandle* n) : controller(domus_interface, n)
+TrackPoseService::TrackPoseService(double update_rate_hz, double step_size_meters, DomusInterface* domus_interface, ros::NodeHandle* n) : controller(step_size_meters, domus_interface, n), _update_rate_hz(update_rate_hz)
 {
   is_active = false;
 }
 
 void TrackPoseService::run_tracking()
 {
-  ros::Duration sleep_time(0.1);
+  ros::Rate loop_rate(_update_rate_hz);
   while (ros::ok())
   {
     //std::cout << "running tracking!" << std::endl;
@@ -23,7 +23,7 @@ void TrackPoseService::run_tracking()
       std::cout << "You hit an error!";
       throw;
     }
-    sleep_time.sleep();
+    loop_rate.sleep();
   }
 }
 
@@ -48,7 +48,10 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "track_pose_server");
   ros::NodeHandle n;
   bool isSimulation;
+  double update_rate_hz, step_size_meters;
   ros::param::get("~sim", isSimulation);
+  ros::param::get("~update_rate_hz", update_rate_hz);
+  ros::param::get("~step_size_meters", step_size_meters);
 
   DomusInterface* domus_interface;
   if (isSimulation){
@@ -61,7 +64,7 @@ int main(int argc, char **argv)
   spinner.start();
   std::cout << "Waiting for DomusInterface in case it's slow to come up";
   ros::Duration(5).sleep();
-  TrackPoseService trackPoseService(domus_interface, &n);
+  TrackPoseService trackPoseService(update_rate_hz, step_size_meters, domus_interface, &n);
   std::cout << "Waiting for trackPoseService in case it's slow to come up";
   ros::Duration(5).sleep();
   ros::ServiceServer service = n.advertiseService("update_pose_target", &TrackPoseService::handle_target_update, &trackPoseService);

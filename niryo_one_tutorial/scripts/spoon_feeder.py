@@ -35,12 +35,12 @@ class SpoonFeeder:
 
   def _update_tracker_based_on_state(self):
     if self.state == State.MOVE_TO_PLATE:
-      self.tracker.start_tracking_fixed_target([0.2,0,0.17])
+      self.tracker.start_tracking_fixed_target([0.2,-0.05,0.17])
       self.is_first_move_to_plate = False
     elif self.state == State.PICK_UP_FOOD:
       self.xoffset = 0.03-0.1
       self.yoffset = 0.015+0.3
-      self.zoffset = -0.04
+      self.zoffset = rospy.get_param('~z_height')
       self.tracker.start_updating_target_to_pose(self.play_trajectory_topic,[self.xoffset, self.yoffset, self.zoffset])
       self._play_trajectory(String(self.play_trajectory_topic))
     elif self.state == State.MOVE_TO_SCALE:

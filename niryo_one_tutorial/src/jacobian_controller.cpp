@@ -3,12 +3,13 @@
 const double TRANS_EPSILON = 0.01;
 const double QUAT_EPSILON = 0.01;
 const double ANGLE_STEP_SIZE = 0.1;
-const double TRANS_STEP_SIZE = 0.01;
+//const double TRANS_STEP_SIZE = 0.01; replaced by step_size_meters
 const double MAX_JOINT_STEP = 0.1;
 
 //constructor
-JacobianController::JacobianController(DomusInterface* domus_interface, ros::NodeHandle* n) 
-  : robot_model_loader_("robot_description")
+JacobianController::JacobianController(double trans_step_size_meters,  DomusInterface* domus_interface, ros::NodeHandle* n)
+  : robot_model_loader_("robot_description"),
+    _trans_step_size_meters(trans_step_size_meters)
 {
   kinematic_model_ = robot_model_loader_.getModel();
   domus_interface_ = domus_interface;
@@ -104,9 +105,9 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   // where R is sqrt(x^2 + y^2), theta is arctan2(y,x), and z is z
   Eigen::Vector3d cylindrical_diff = get_cylindrical_point_translation(cur_trans.translation(), target_trans.translation());
 
-  if (trans_dist > TRANS_STEP_SIZE)
+  if (trans_dist > _trans_step_size_meters)
   {
-    double step_scale = TRANS_STEP_SIZE / trans_dist;
+    double step_scale = _trans_step_size_meters / trans_dist;
     std::cout << "Translation "<< trans_dist << " too large, so only going " << step_scale << " of the waythere" << std::endl;
     trans_diff = trans_diff * step_scale;
     rot_angle = rot_angle * step_scale;

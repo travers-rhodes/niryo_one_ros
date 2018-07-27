@@ -10,7 +10,7 @@
 class TrackPoseService
 {
   public:
-    TrackPoseService(DomusInterface* domus_interface, ros::NodeHandle*);
+    TrackPoseService(double update_rate_hz, double step_size_meters, DomusInterface* domus_interface, ros::NodeHandle*);
     bool handle_target_update(niryo_one_tutorial::TrackPose::Request &req,
            niryo_one_tutorial::TrackPose::Response &res);
     void run_tracking();
@@ -19,5 +19,6 @@ class TrackPoseService
     geometry_msgs::Pose target_pose;
     JacobianController controller;
     bool is_active;
+    double _update_rate_hz;
 };
 

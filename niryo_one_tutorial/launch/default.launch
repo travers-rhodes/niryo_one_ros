@@ -12,9 +12,13 @@
     <rosparam command="load"
               file="$(find niryo_one_moveit_config)/config/kinematics.yaml"/>
     <param name="sim" type="bool" value="$(arg sim)"/>
+    <param name="update_rate_hz" type="double" value="30"/>
+    <param name="step_size_meters" type="double" value="0.03"/>
   </node>
 
-  <node name="spoon_feeder" pkg="niryo_one_tutorial" type="spoon_feeder.py"/> 
+  <node name="spoon_feeder" pkg="niryo_one_tutorial" type="spoon_feeder.py"> 
+    <param name="z_height" type="double" value="0.05"/>
+  </node>
   <node name="play_trajectory_service" pkg="niryo_one_tutorial" type="play_trajectory_server.py"/>
 
   <!--https://answers.ros.org/question/60975/subscribe-to-new-jointstate-messages/-->

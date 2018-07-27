@@ -106,7 +106,6 @@ class PrepareForMouthStateTransitionLogic(TransitionLogic):
     epsilon_to_plate = 0.05
     while (self.distance_to_goal is None or self.distance_to_goal > epsilon_to_plate):
       r.sleep()
-    rospy.sleep(4)
     return State.MOVE_TO_SCALE
 
   def update_distance_to_goal(self, message):
