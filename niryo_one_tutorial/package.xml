@@ -64,6 +64,7 @@
   <exec_depend>moveit_ros_planning_interface</exec_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>serial</exec_depend>
+  <exec_depend>ueye_cam</exec_depend>
   <exec_depend>python-transforms3d-pip</exec_depend>
   <exec_depend>python-enum34-pip</exec_depend>
 
