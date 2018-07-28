@@ -6,17 +6,15 @@ from std_msgs.msg import Bool, Float64
 class State(Enum):
   MOVE_TO_PLATE = 1
   PICK_UP_FOOD = 2
+  PREPARE_FOR_MOUTH = 3
   MOVE_TO_MOUTH = 4
-  MOVE_TO_SCALE = 7
-  DUMP_ON_SCALE = 8
-  WAIT_FOR_WEIGHT_INPUT = 9
-  MOVE_BACK_TO_MOUTH = 10
-  PREPARE_FOR_MOUTH = 11
+  WAIT_IN_MOUTH = 5
+  PREPARE_FOR_PLATE = 6
 
 distance_to_goal_topic = "/distance_to_target" # std_msgs/Float64
 food_acquired_topic = "/food_acquired" # std_msgs/Bool from PlayTapoTrajectory
 
-class TransitionLogic:
+class TransitionLogic(object):
   def __enter__(self):
     return self
   def __exit__(self, exc_type, exc_value, traceback):
@@ -30,91 +28,83 @@ class TransitionLogic:
   def wait_and_return_next_state(self):
     rospy.logerr("This method shouldn't be called from this base class, but should be implemented in the child class")
 
-class PickUpStateTransitionLogic(TransitionLogic):
+# by inheriting from this class, you get access to a self.topic_true attribute
+# which will turn to True after the input topic_string publishes a True 
+class TopicBasedTransitionLogic(TransitionLogic):
+  def __init__(self, topic_string, topic_type):
+    self.topic_string = topic_string
+    self.topic_type = topic_type
+  
   def __enter__(self):
-    self.food_acquired = False
-    self.listenForFoodAcquired = rospy.Subscriber(food_acquired_topic, Bool, self.update_food_acquired)
+    self.last_topic_value = None
+    self.listen_for_topic = rospy.Subscriber(self.topic_string, self.topic_type, self.update_last_topic_value)
     return self
 
   def __exit__(self, exc_type, exc_value, traceback):
-    self.listenForFoodAcquired.unregister()
+    self.listen_for_topic.unregister()
+
+  def update_last_topic_value(self, message):
+    self.last_topic_value = message.data
+
+class DistanceBasedTransitionLogic(TopicBasedTransitionLogic):
+  def __init__(self, epsilon, next_state):
+    self.epsilon = epsilon
+    self.next_state = next_state
+    super(DistanceBasedTransitionLogic, self).__init__(distance_to_goal_topic, Float64)
+  
+  def wait_and_return_next_state(self):
+    rospy.logwarn("within class " + self.__class__.__name__)
+    start_time = rospy.get_time();
+    r = rospy.Rate(10) # 10Hz
+    while (self.last_topic_value is None 
+           or self.last_topic_value > self.epsilon):
+      r.sleep()
+    return self.next_state
+
+
+class PickUpStateTransitionLogic(TopicBasedTransitionLogic):
+  def __init__(self):
+    # super nicely generates a self.topic_true attribute for us.
+    super(PickUpStateTransitionLogic, self).__init__(food_acquired_topic, Bool)
 
   def wait_and_return_next_state(self):
     rospy.logwarn("Picking up food")
     r = rospy.Rate(10) # 10Hz
-    while not self.food_acquired:
+    while self.last_topic_value is None or not self.last_topic_value:
       r.sleep()
     return State.PREPARE_FOR_MOUTH
 
-  def update_food_acquired(self, message):
-    self.food_acquired = message.data
-
-class MoveToPlateStateTransitionLogic(TransitionLogic):
-  def __enter__(self):
-    # this might seem like a weird place to put this, but it avoids problems where we have food picked up
-    self.distance_to_goal = None
-    self.listenForSuccess = rospy.Subscriber(distance_to_goal_topic, Float64, self.update_distance_to_goal)
-    return self
-
-  def __exit__(self, exc_type, exc_value, traceback):
-    self.listenForSuccess.unregister()
-
+class WaitInMouthStateTransitionLogic(TransitionLogic):
   def wait_and_return_next_state(self):
-    rospy.logwarn("Moving back to plate")
-    r = rospy.Rate(10)
-    epsilon_to_plate = 0.01
-    while (self.distance_to_goal is None or self.distance_to_goal > epsilon_to_plate):
-      r.sleep()
-    return State.PICK_UP_FOOD
-
-  def update_distance_to_goal(self, message):
-    self.distance_to_goal = message.data
-
-class MoveToScaleStateTransitionLogic(TransitionLogic):
-  def __enter__(self):
-    self.distance_to_goal = None
-    self.listenForSuccess = rospy.Subscriber(distance_to_goal_topic, Float64, self.update_distance_to_goal)
-    return self
-
-  def __exit__(self, exc_type, exc_value, traceback):
-    self.listenForSuccess.unregister()
-
-  def wait_and_return_next_state(self):
-    rospy.logwarn("Moving back to plate")
-    r = rospy.Rate(10)
-    epsilon_to_plate = 0.05
-    while (self.distance_to_goal is None or self.distance_to_goal > epsilon_to_plate):
-      r.sleep()
     rospy.sleep(4)
-    return State.MOVE_TO_PLATE
+    return State.PREPARE_FOR_PLATE
 
-  def update_distance_to_goal(self, message):
-    self.distance_to_goal = message.data
+class MoveToPlateStateTransitionLogic(DistanceBasedTransitionLogic):
+  def __init__(self):
+    # super nicely generates a self.topic_true attribute for us.
+    super(MoveToPlateStateTransitionLogic, self).__init__(0.02, State.PICK_UP_FOOD)
 
-class PrepareForMouthStateTransitionLogic(TransitionLogic):
-  def __enter__(self):
-    self.distance_to_goal = None
-    self.listenForSuccess = rospy.Subscriber(distance_to_goal_topic, Float64, self.update_distance_to_goal)
-    return self
+class PrepareForMouthStateTransitionLogic(DistanceBasedTransitionLogic):
+  def __init__(self):
+    # super nicely generates a self.topic_true attribute for us.
+    super(PrepareForMouthStateTransitionLogic, self).__init__(0.02, State.MOVE_TO_MOUTH)
+ 
+class MoveToMouthStateTransitionLogic(DistanceBasedTransitionLogic):
+  def __init__(self):
+    # super nicely generates a self.topic_true attribute for us.
+    super(MoveToMouthStateTransitionLogic, self).__init__(0.02, State.WAIT_IN_MOUTH)
 
-  def __exit__(self, exc_type, exc_value, traceback):
-    self.listenForSuccess.unregister()
-
-  def wait_and_return_next_state(self):
-    rospy.logwarn("Preparing for mouth")
-    r = rospy.Rate(10)
-    epsilon_to_plate = 0.05
-    while (self.distance_to_goal is None or self.distance_to_goal > epsilon_to_plate):
-      r.sleep()
-    return State.MOVE_TO_SCALE
-
-  def update_distance_to_goal(self, message):
-    self.distance_to_goal = message.data
+class PrepareForPlateStateTransitionLogic(DistanceBasedTransitionLogic):
+  def __init__(self):
+    # super nicely generates a self.topic_true attribute for us.
+    super(PrepareForPlateStateTransitionLogic, self).__init__(0.02, State.MOVE_TO_PLATE)
 
 # a dictionary that gives you the logic class constructor associated with each state
 transitionLogicDictionary = {
                      State.MOVE_TO_PLATE   : MoveToPlateStateTransitionLogic,
                      State.PICK_UP_FOOD    : PickUpStateTransitionLogic,
-                     State.MOVE_TO_SCALE   : MoveToScaleStateTransitionLogic,
-                     State.PREPARE_FOR_MOUTH : PrepareForMouthStateTransitionLogic,
+                     State.PREPARE_FOR_MOUTH: PrepareForMouthStateTransitionLogic,
+                     State.MOVE_TO_MOUTH: MoveToMouthStateTransitionLogic,
+                     State.WAIT_IN_MOUTH: WaitInMouthStateTransitionLogic,
+                     State.PREPARE_FOR_PLATE: PrepareForPlateStateTransitionLogic,
                    }

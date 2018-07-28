@@ -20,5 +20,6 @@ class TrackPoseService
     JacobianController controller;
     bool is_active;
     double _update_rate_hz;
+    ros::Publisher dist_pub_;
 };
 

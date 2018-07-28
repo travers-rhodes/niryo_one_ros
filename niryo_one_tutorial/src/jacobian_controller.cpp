@@ -27,15 +27,16 @@ JacobianController::JacobianController(double trans_step_size_meters,  DomusInte
   domus_interface->SendTargetAngles(initial_joint_values);
   kinematic_state_->setJointGroupPositions(joint_model_group_, initial_joint_values);  
   current_pose_ = kinematic_state_->getGlobalLinkTransform("spoon_link");
-
+  
   // set up joint publishing
   joint_pub_ = n->advertise<sensor_msgs::JointState>("/domus/robot/joint_states", 1);
-  dist_pub_ = n->advertise<std_msgs::Float64>("/distance_to_target", 1);
   std::cout << "Sleeping for 5 seconds to get to initial position";
   ros::Duration(5).sleep();
 }
 
-void
+// returns the distance to the target
+// discretized to 0 (arrived) or 1 (not there yet) currently...
+double
 JacobianController::make_step_to_target_pose(const geometry_msgs::Pose &target_pose)
 {
   Eigen::Quaterniond target_quat(target_pose.orientation.w,
@@ -56,21 +57,16 @@ JacobianController::make_step_to_target_pose(const geometry_msgs::Pose &target_p
   double trans_dist = distance(cur_trans, target_trans);
   //std::cout << trans_dist << " is the translation distance. " << quat_dist << " is the quat dist" << std::endl;
   //std::cout << target_quat.w() << "," <<  target_quat.vec() << " is the target quat. " << cur_quat.w() << "," << target_quat.vec() << " is the current quat" << std::endl;
-  std_msgs::Float64 msg;
   if (trans_dist < TRANS_EPSILON &&
       quat_dist < QUAT_EPSILON)
   {
-    //no need to move
-    //publish current pose (we say we are there, so publish a distance of 0)
-    msg.data = 0.0;
-    dist_pub_.publish(msg); 
-    return;
+    // No need to move. Return 0 to say we are at the target.
+    return 0.0;
   }
-  msg.data = 1.0;
-  // we aren't there yet, so we just publish a distance of 1
-  dist_pub_.publish(msg); 
   Eigen::Affine3d pseudo_end_pose = get_pseudo_end_pose(target_trans, target_quat);
   move_to_target_pose(pseudo_end_pose);  
+  // return 1 to say we are moving to the target
+  return 1.0;
 }
 
 Eigen::Affine3d
@@ -108,7 +104,7 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
   if (trans_dist > _trans_step_size_meters)
   {
     double step_scale = _trans_step_size_meters / trans_dist;
-    std::cout << "Translation "<< trans_dist << " too large, so only going " << step_scale << " of the waythere" << std::endl;
+    //std::cout << "Translation "<< trans_dist << " too large, so only going " << step_scale << " of the waythere" << std::endl;
     trans_diff = trans_diff * step_scale;
     rot_angle = rot_angle * step_scale;
     cylindrical_diff = cylindrical_diff * step_scale;
@@ -122,7 +118,7 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
     trans_diff = trans_diff * angle_step_scale;
     rot_angle = rot_angle * angle_step_scale;
     cylindrical_diff = cylindrical_diff * angle_step_scale;
-    std::cout << "Rotation was larger than ANGLE_STEP_SIZE, so only going " << angle_step_scale << " of the waythere" << std::endl;
+    //std::cout << "Rotation was larger than ANGLE_STEP_SIZE, so only going " << angle_step_scale << " of the waythere" << std::endl;
   }
   
   Eigen::MatrixXd jacobian = get_cylindrical_jacobian();

@@ -14,7 +14,7 @@ class JacobianController
 {
   public:
     JacobianController(double trans_step_size_meters, DomusInterface* domus_interface, ros::NodeHandle* n);
-    void make_step_to_target_pose(const geometry_msgs::Pose &target_pose);
+    double make_step_to_target_pose(const geometry_msgs::Pose &target_pose);
 
   private:
     void move_to_target_pose(const Eigen::Affine3d &target_pose);
@@ -28,7 +28,6 @@ class JacobianController
     robot_model::RobotModelPtr kinematic_model_;
     robot_model_loader::RobotModelLoader robot_model_loader_;
     ros::Publisher joint_pub_;
-    ros::Publisher dist_pub_;
     sensor_msgs::JointState joint_state_;
     DomusInterface* domus_interface_;
     float _trans_step_size_meters;

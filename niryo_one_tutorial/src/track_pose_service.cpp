@@ -2,6 +2,8 @@
 
 TrackPoseService::TrackPoseService(double update_rate_hz, double step_size_meters, DomusInterface* domus_interface, ros::NodeHandle* n) : controller(step_size_meters, domus_interface, n), _update_rate_hz(update_rate_hz)
 {
+  dist_pub_ = n->advertise<std_msgs::Float64>("/distance_to_target", 1);
+
   is_active = false;
 }
 
@@ -13,10 +15,17 @@ void TrackPoseService::run_tracking()
     //std::cout << "running tracking!" << std::endl;
     try
     {
+      std_msgs::Float64 msg;
       if(is_active)
       {
-        controller.make_step_to_target_pose(target_pose);
+       msg.data = controller.make_step_to_target_pose(target_pose);
       }
+      else
+      {
+        //if we aren't moving, then we will never arrive
+        msg.data = 1.0;
+      }
+      dist_pub_.publish(msg); 
     }
     catch(...)
     {
