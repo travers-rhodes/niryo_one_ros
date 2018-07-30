@@ -43,37 +43,37 @@ DomusInterface::SendTargetAngles(const std::vector<double> &joint_angles)
   ros::Rate r(100);
   // OpCode + 6 angles * 2 bytes
   uint8_t command[13];
-  ROS_INFO_STREAM("I was asked to go to "<<joint_angles[0]
-   <<","<<joint_angles[1]
-   <<","<<joint_angles[2]
-   <<","<<joint_angles[3]
-   <<","<<joint_angles[4]
-   <<","<<joint_angles[5]
-   <<std::endl);
+  //ROS_INFO_STREAM("I was asked to go to "<<joint_angles[0]
+  // <<","<<joint_angles[1]
+  // <<","<<joint_angles[2]
+  // <<","<<joint_angles[3]
+  // <<","<<joint_angles[4]
+  // <<","<<joint_angles[5]
+  // <<std::endl);
   
   command[0] = REQUEST_JOINT_ANGLES;
   uint16_t joint_temp;
   for (size_t joint_index = 0; joint_index < 6; joint_index++)
   {
-    ROS_INFO("adding to my command");
+    //ROS_INFO("adding to my command");
     // let's say joint_angles ranges from -2pi to 2pi just to be extra safe
     // so, we'll map that via [-2pi, 2pi] -> [0, 65535]
     // giving us
     joint_temp = (joint_angles[joint_index] + 2.0 * M_PI)/(4.0 * M_PI) * 65535;
-    ROS_INFO("getting there");
+    //ROS_INFO("getting there");
     // big byte
     command[joint_index * 2 + 1] = joint_temp >> 8;
-    ROS_INFO("almost there");
+    //ROS_INFO("almost there");
     // small byte
     command[joint_index * 2 + 2] = joint_temp & 0xff;
   }
-  ROS_INFO_STREAM("got my command ready"<<unsigned(command[0])
-   <<","<<unsigned(command[11])
-   <<","<<unsigned(command[12])
-   <<std::endl);
+  //ROS_INFO_STREAM("got my command ready"<<unsigned(command[0])
+  // <<","<<unsigned(command[11])
+  // <<","<<unsigned(command[12])
+  // <<std::endl);
 
   // OpCode + 6 angles * 2 bytes
   ser.write(command, 13);
   ser.flush();
-  ROS_INFO_STREAM("command sent");
+  //ROS_INFO_STREAM("command sent");
 }
