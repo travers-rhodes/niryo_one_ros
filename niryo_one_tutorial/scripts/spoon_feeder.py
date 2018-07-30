@@ -5,7 +5,7 @@ import tracker_interface as tracker
 import numpy as np
 from feeding_state_transition_logic import transitionLogicDictionary, State
 from niryo_one_tutorial.srv import PlayTrajectory
-from std_msgs.msg import String
+from std_msgs.msg import String, Empty
 from geometry_msgs.msg import Quaternion
 
 
@@ -19,7 +19,8 @@ class SpoonFeeder:
     self.play_trajectory_topic = "/Tapo/example_poses"
     self._play_trajectory = rospy.ServiceProxy("play_trajectory", PlayTrajectory)
     rospy.logwarn("TrackerInterface successfully initialized")
-    self._set_state(State.MOVE_TO_PLATE)
+    self._set_state(State.WAIT_FOR_SPOON_CALIBRATION) 
+    self.restart_do_pub = rospy.Publisher('/DO/restart', Empty, queue_size = 1)
 
     while not rospy.is_shutdown():
       with transitionLogicDictionary[self.state]() as transitionLogic:
@@ -44,6 +45,7 @@ class SpoonFeeder:
       self.tracker.start_updating_target_to_pose(self.play_trajectory_topic,[self.xoffset, self.yoffset, self.zoffset])
       self._play_trajectory(String(self.play_trajectory_topic))
     elif self.state == State.PREPARE_FOR_MOUTH:
+      self.restart_do_pub.publish(Empty())
       self.tracker.start_tracking_fixed_target([0.3,0.15,0.27])
     elif self.state == State.MOVE_TO_MOUTH:
       self.tracker.start_updating_target_to_point("/DO/inferenceOut/Point")
@@ -51,6 +53,8 @@ class SpoonFeeder:
       self.tracker.stop_moving()
     elif self.state == State.PREPARE_FOR_PLATE:
       self.tracker.start_tracking_fixed_target([0.3,0.15,0.27])
+    elif self.state == State.WAIT_FOR_SPOON_CALIBRATION:
+      pass
     else:
       rospy.logerr("The state %s is not known"%self.state)
 

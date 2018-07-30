@@ -2,6 +2,7 @@ import rospy
 from enum import Enum
 
 from std_msgs.msg import Bool, Float64
+from spoon_perception.srv import ObjectSpoon
 
 class State(Enum):
   MOVE_TO_PLATE = 1
@@ -10,9 +11,13 @@ class State(Enum):
   MOVE_TO_MOUTH = 4
   WAIT_IN_MOUTH = 5
   PREPARE_FOR_PLATE = 6
+  WAIT_FOR_SPOON_CALIBRATION = 10
 
 distance_to_goal_topic = "/distance_to_target" # std_msgs/Float64
 food_acquired_topic = "/food_acquired" # std_msgs/Bool from PlayTapoTrajectory
+object_in_spoon_service_name = "/detect_object_spoon" # service to detect whether there is an object in spoon
+
+hist_corr_threshold = 0.7
 
 class TransitionLogic(object):
   def __enter__(self):
@@ -66,18 +71,29 @@ class PickUpStateTransitionLogic(TopicBasedTransitionLogic):
   def __init__(self):
     # super nicely generates a self.topic_true attribute for us.
     super(PickUpStateTransitionLogic, self).__init__(food_acquired_topic, Bool)
+    # what we go to next depends on whether there is food in the spoon
+    self._check_spoon = rospy.ServiceProxy(object_in_spoon_service_name, ObjectSpoon)
 
   def wait_and_return_next_state(self):
     rospy.logwarn("Picking up food")
     r = rospy.Rate(10) # 10Hz
     while self.last_topic_value is None or not self.last_topic_value:
       r.sleep()
-    return State.PREPARE_FOR_MOUTH
+    check_spoon_response = self._check_spoon()
+    if check_spoon_response.histCorr < hist_corr_threshold:
+      return State.PREPARE_FOR_MOUTH
+    return State.PICK_UP_FOOD
 
 class WaitInMouthStateTransitionLogic(TransitionLogic):
   def wait_and_return_next_state(self):
     rospy.sleep(4)
     return State.PREPARE_FOR_PLATE
+
+class SpoonCalibrationStateTransitionLogic(TransitionLogic):
+  def wait_and_return_next_state(self):
+    rospy.logwarn("Waiting for %s service to come up" % object_in_spoon_service_name)
+    rospy.wait_for_service(object_in_spoon_service_name)
+    return State.MOVE_TO_PLATE 
 
 class MoveToPlateStateTransitionLogic(DistanceBasedTransitionLogic):
   def __init__(self):
@@ -107,4 +123,5 @@ transitionLogicDictionary = {
                      State.MOVE_TO_MOUTH: MoveToMouthStateTransitionLogic,
                      State.WAIT_IN_MOUTH: WaitInMouthStateTransitionLogic,
                      State.PREPARE_FOR_PLATE: PrepareForPlateStateTransitionLogic,
+                     State.WAIT_FOR_SPOON_CALIBRATION : SpoonCalibrationStateTransitionLogic,
                    }
