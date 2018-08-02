@@ -2,7 +2,7 @@ import rospy
 from enum import Enum
 
 from std_msgs.msg import Bool, Float64
-from spoon_perception.srv import ObjectSpoon
+from spoon_perception.srv import ObjectSpoon, ObjectSpoonResponse
 
 class State(Enum):
   MOVE_TO_PLATE = 1
@@ -72,7 +72,11 @@ class PickUpStateTransitionLogic(TopicBasedTransitionLogic):
     # super nicely generates a self.topic_true attribute for us.
     super(PickUpStateTransitionLogic, self).__init__(food_acquired_topic, Bool)
     # what we go to next depends on whether there is food in the spoon
-    self._check_spoon = rospy.ServiceProxy(object_in_spoon_service_name, ObjectSpoon)
+    # however, if we're simulating the spoon we make a dummy call to service
+    if rospy.get_param('~simulate_spoon'):
+      self._check_spoon = lambda:ObjectSpoonResponse(0,"dummy")
+    else:
+      self._check_spoon = rospy.ServiceProxy(object_in_spoon_service_name, ObjectSpoon)
 
   def wait_and_return_next_state(self):
     rospy.logwarn("Picking up food")
@@ -92,7 +96,8 @@ class WaitInMouthStateTransitionLogic(TransitionLogic):
 class SpoonCalibrationStateTransitionLogic(TransitionLogic):
   def wait_and_return_next_state(self):
     rospy.logwarn("Waiting for %s service to come up" % object_in_spoon_service_name)
-    rospy.wait_for_service(object_in_spoon_service_name)
+    if not rospy.get_param('~simulate_spoon'):
+      rospy.wait_for_service(object_in_spoon_service_name)
     return State.MOVE_TO_PLATE 
 
 class MoveToPlateStateTransitionLogic(DistanceBasedTransitionLogic):

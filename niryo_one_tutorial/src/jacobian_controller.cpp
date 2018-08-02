@@ -1,3 +1,8 @@
+//
+// This class computes the robot jacobian and can be use to move the robot along a straight-line path
+// (in cylindrical coordinates) to the target pose (in cartesian coordinates)
+//
+
 #include <niryo_one_tutorial/jacobian_controller.h>
 
 const double TRANS_EPSILON = 0.01;
@@ -39,6 +44,7 @@ JacobianController::JacobianController(double trans_step_size_meters,  DomusInte
 double
 JacobianController::make_step_to_target_pose(const geometry_msgs::Pose &target_pose)
 {
+  // convert the input ROS topic pose to the associated Eigen representation
   Eigen::Quaterniond target_quat(target_pose.orientation.w,
                               target_pose.orientation.x,
                               target_pose.orientation.y, 
@@ -63,79 +69,37 @@ JacobianController::make_step_to_target_pose(const geometry_msgs::Pose &target_p
     // No need to move. Return 0 to say we are at the target.
     return 0.0;
   }
-  Eigen::Affine3d pseudo_end_pose = get_pseudo_end_pose(target_trans, target_quat);
-  move_to_target_pose(pseudo_end_pose);  
-  // return 1 to say we are moving to the target
-  return 1.0;
-}
-
-Eigen::Affine3d
-JacobianController::get_pseudo_end_pose(Eigen::Translation3d target_trans, Eigen::Quaterniond target_quat)
-{
-  // for now, just move all the way to the mouth in a single step
-  Eigen::Affine3d pseudo_end_pose = target_trans * target_quat;
-  return pseudo_end_pose;
-}
-
-void
-JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
-{
-  Eigen::Translation3d cur_trans(current_pose_.translation());
-  Eigen::Quaterniond cur_quat(current_pose_.rotation());
-  Eigen::Translation3d target_trans(target_pose.translation());
-  Eigen::Quaterniond target_quat(target_pose.rotation());
+ 
+  // Compute the translation and rotation change we need 
   Eigen::Translation3d trans_matrix = cur_trans.inverse() * target_trans;
   Eigen::Vector3d trans_diff = trans_matrix.translation();
   Eigen::Quaterniond rot_diff =  target_quat * cur_quat.inverse();
-  Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
-  
-  double quat_dist = quat_distance(cur_quat, target_quat);
-  //std::cout << target_quat.w() << "," <<  target_quat.vec() << " is the target quat. " << cur_quat.w() << "," << target_quat.vec() << " is the current quat" << std::endl;
-  //std::cout << "Quat dist is now " << quat_dist << std::endl;
-  double trans_dist = distance(cur_trans, target_trans);
   Eigen::AngleAxisd rot_axis_angle(rot_diff);
   double rot_angle = rot_axis_angle.angle();
   Eigen::Vector3d rot_axis = rot_axis_angle.axis();
-  //std::cout << trans_dist << " is the translation distance. trans step size is " << TRANS_STEP_SIZE << std::endl;
+
   // cylindrical_diff is of the form dR, dTheta, dZ
   // where R is sqrt(x^2 + y^2), theta is arctan2(y,x), and z is z
   Eigen::Vector3d cylindrical_diff = get_cylindrical_point_translation(cur_trans.translation(), target_trans.translation());
 
+  // scale down the move if the translation is too big
   if (trans_dist > _trans_step_size_meters)
   {
+    std::cout << "before scaling " << trans_diff;
     double step_scale = _trans_step_size_meters / trans_dist;
-    //std::cout << "Translation "<< trans_dist << " too large, so only going " << step_scale << " of the waythere" << std::endl;
-    trans_diff = trans_diff * step_scale;
-    rot_angle = rot_angle * step_scale;
-    cylindrical_diff = cylindrical_diff * step_scale;
+    scale_down_step(step_scale, trans_diff, rot_angle, cylindrical_diff);
+    std::cout << " after scaling " << trans_diff << std::endl;
   }
-  
-  //std::cout << rot_angle << " is the rotation distance. angle step size is" << ANGLE_STEP_SIZE << std::endl;
-  //std::cout << "The rotation axis is" << rot_axis << std::endl;
+ 
+  // scale down the move if the rotation is too big 
   if (rot_angle > ANGLE_STEP_SIZE)
   {
     double angle_step_scale = ANGLE_STEP_SIZE / rot_angle;
-    trans_diff = trans_diff * angle_step_scale;
-    rot_angle = rot_angle * angle_step_scale;
-    cylindrical_diff = cylindrical_diff * angle_step_scale;
-    //std::cout << "Rotation was larger than ANGLE_STEP_SIZE, so only going " << angle_step_scale << " of the waythere" << std::endl;
+    scale_down_step(angle_step_scale, trans_diff, rot_angle, cylindrical_diff);
   }
-  
-  Eigen::MatrixXd jacobian = get_cylindrical_jacobian();
 
-  //std::cout << "jacobian was computed to be" << jacobian << std::endl; 
+  Eigen::VectorXd joint_delta = get_joint_delta(cylindrical_diff, rot_angle, rot_axis);
 
-  // get a single column vector of the translation and rotation we want to achieve
-  Eigen::Matrix<double, 6, 1> target_delta;
-  target_delta << cylindrical_diff, rot_angle * rot_axis;
-
-  //https://eigen.tuxfamily.org/dox/group__LeastSquares.html
-  // with the extra addition that we use a tiny regularization term to reduce problems due to singularities, so we're solving (J^T J + lambda * I)^-1 J^T Y
-  double lambda = 0.1;
-  Eigen::VectorXd joint_delta = (jacobian.transpose() * jacobian + (lambda * Eigen::MatrixXd::Identity(6,6))).ldlt().solve(jacobian.transpose() * target_delta);
-  //std::cout << "heading to " << joint_delta << std::endl;
-  std::vector<double> current_joint_values;
-  kinematic_state_->copyJointGroupPositions(joint_model_group_, current_joint_values);
   // ensure that no joint rotation is larger than MAX_JOINT_STEP at any given time
   for(int i = 0; i < 6; i++)
   {
@@ -150,17 +114,57 @@ JacobianController::move_to_target_pose(const Eigen::Affine3d &target_pose)
       }
     }
   }
+
+  // actually send the requested angles to the robot
+  std::vector<double> current_joint_values;
+  kinematic_state_->copyJointGroupPositions(joint_model_group_, current_joint_values);
   std::vector<double> new_joint_values(6);
   for(std::size_t i = 0; i < 6; ++i)
   {
     new_joint_values[i] = joint_delta(i) + current_joint_values[i];
   }
   domus_interface_->SendTargetAngles(new_joint_values);
-  ros::Duration(0.05).sleep();
+
+  // update the state of this class to reflect the new robot position, and publish the new robot position.
   kinematic_state_->setJointGroupPositions(joint_model_group_, new_joint_values);  
   current_pose_ = kinematic_state_->getGlobalLinkTransform("spoon_link");
   publish_robot_state();
-  return;
+
+  // return 1 to say we are moving to the target
+  return 1.0;
+}
+
+// scale down the step by step_scale amount
+void
+JacobianController::scale_down_step(double step_scale, Eigen::Vector3d &trans_diff, double &rot_angle, Eigen::Vector3d &cylindrical_diff)
+{
+    trans_diff = trans_diff * step_scale;
+    rot_angle = rot_angle * step_scale;
+    cylindrical_diff = cylindrical_diff * step_scale;
+}
+
+// compute the required joint angles to make the robot end effector move the desired change in position (in cylindrical coordinates)
+// and rotation (rot_angle around rot_axis)
+// note: cylindrical_diff is of the form dR, dTheta, dZ
+//   where R is sqrt(x^2 + y^2), theta is arctan2(y,x), and z is z
+// rot_axis is (x,y,z) in the frame of the robot base
+Eigen::VectorXd
+JacobianController::get_joint_delta(Eigen::Vector3d cylindrical_diff, double rot_angle, Eigen::Vector3d rot_axis)
+{
+  // get the cylindrical jacobian 
+  Eigen::MatrixXd jacobian = get_cylindrical_jacobian();
+  //std::cout << "jacobian was computed to be" << jacobian << std::endl; 
+
+  // create a single column vector of the translation and rotation we want to achieve
+  Eigen::Matrix<double, 6, 1> target_delta;
+  target_delta << cylindrical_diff, rot_angle * rot_axis;
+
+  // use regularized least squares to compute the required joint angle changes
+  //https://eigen.tuxfamily.org/dox/group__LeastSquares.html
+  // with the extra addition that we use a tiny regularization term to reduce problems due to singularities, so we're solving (J^T J + lambda * I)^-1 J^T Y
+  double lambda = 0.1;
+  Eigen::VectorXd joint_delta = (jacobian.transpose() * jacobian + (lambda * Eigen::MatrixXd::Identity(6,6))).ldlt().solve(jacobian.transpose() * target_delta);
+  return joint_delta;
 }
 
 // The jacobian in cylindrical coordinates

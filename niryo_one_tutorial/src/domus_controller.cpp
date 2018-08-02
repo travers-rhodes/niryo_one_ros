@@ -1,6 +1,9 @@
+//
+// This ROS node listens on /set_joint_angles and will move DOMUS to the requested position in joint angles
+//
+
 #include <ros/ros.h>
 #include <niryo_one_tutorial/domus_interface.h>
-#include <niryo_one_tutorial/mock_domus_interface.h>
 #include <niryo_one_tutorial/JointAngles.h>
 
 DomusInterface domus;

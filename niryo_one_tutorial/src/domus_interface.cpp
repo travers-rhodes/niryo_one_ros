@@ -1,3 +1,7 @@
+//
+// This class connects to DOMUS via a serial connection 
+// and can be used to send target angles for DOMUS to move to
+//
 #include "niryo_one_tutorial/domus_interface.h"
 #include "ros/ros.h"
 

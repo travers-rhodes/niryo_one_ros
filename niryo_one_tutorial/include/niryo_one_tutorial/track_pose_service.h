@@ -1,3 +1,10 @@
+//
+// This ros node starts a server at "track_pose_server" which exports a service
+// "update_pose_target". The API of that service call is, if "stopMotion" is set
+// on the request, stop the robot
+// and otherwise, start the robot moving toward the given target pose
+// this service also periodically publishes to "/distance_to_target"
+//
 #include <ros/ros.h>
 #include <niryo_one_tutorial/jacobian_controller.h>
 #include "niryo_one_tutorial/TrackPose.h"
