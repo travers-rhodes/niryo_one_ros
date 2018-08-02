@@ -17,7 +17,7 @@ distance_to_goal_topic = "/distance_to_target" # std_msgs/Float64
 food_acquired_topic = "/food_acquired" # std_msgs/Bool from PlayTapoTrajectory
 object_in_spoon_service_name = "/detect_object_spoon" # service to detect whether there is an object in spoon
 
-hist_corr_threshold = 0.7
+hist_corr_threshold = 0.5
 
 class TransitionLogic(object):
   def __enter__(self):
