@@ -16,7 +16,7 @@
   </node>
 
   <node name="spoon_feeder" pkg="niryo_one_tutorial" type="spoon_feeder.py"> 
-    <param name="simulate_spoon" type="bool" value="$(arg sim)"/>
+    <param name="simulate_spoon" type="bool" value="$(arg simulate_spoon)"/>
     <param name="z_height" type="double" value="0.05"/>
   </node>
   <node name="play_trajectory_service" pkg="niryo_one_tutorial" type="play_trajectory_server.py"/>
