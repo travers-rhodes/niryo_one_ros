@@ -85,10 +85,8 @@ JacobianController::make_step_to_target_pose(const geometry_msgs::Pose &target_p
   // scale down the move if the translation is too big
   if (trans_dist > _trans_step_size_meters)
   {
-    std::cout << "before scaling " << trans_diff;
     double step_scale = _trans_step_size_meters / trans_dist;
     scale_down_step(step_scale, trans_diff, rot_angle, cylindrical_diff);
-    std::cout << " after scaling " << trans_diff << std::endl;
   }
  
   // scale down the move if the rotation is too big 
@@ -107,7 +105,6 @@ JacobianController::make_step_to_target_pose(const geometry_msgs::Pose &target_p
     if (cur_joint_step > MAX_JOINT_STEP)
     {
       double scale = MAX_JOINT_STEP / cur_joint_step;
-      std::cout << "We're scaling now, by a factor of " << scale << std::endl;
       for (int j = 0; j < 6; j++)
       {
         joint_delta[j] = joint_delta[j] * scale;
