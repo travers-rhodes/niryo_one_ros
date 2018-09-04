@@ -209,6 +209,7 @@
   <joint name="hand_spoon_joint" type="fixed">
     <parent link="hand_link"/>
     <child link="spoon_link"/>
-    <origin rpy="0 0 0" xyz="0.114 0.0 0.031"/>
+    <!--<origin rpy="0 0 0" xyz="0.114 0.0 0.031"/>-->
+    <origin rpy="0 0 0" xyz="0.14 0.0 0.031"/>
   </joint>
 </robot>
