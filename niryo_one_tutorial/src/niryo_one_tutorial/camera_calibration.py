@@ -25,24 +25,28 @@ class CameraCalibration:
     - - 0.4549267234161455
     """
     rospack = rospkg.RosPack()
-    ada_tut_path = rospack.get_path("niryo_one_tutorial")
-    with open(ada_tut_path + '/config/calibrationParameters.yml','r') as f:
-      calibParams = yaml.load(f)
-      rospy.logwarn("calibParams %s"% calibParams)
-      rotation = np.array(calibParams["Rotation"])
-      translation = np.array(calibParams["Translation"])
-     
-      self.camera_to_robot = np.concatenate((np.concatenate((rotation,translation), axis=1),
-                                     [[ 0, 0, 0, 1]]))
-    
+    self.ada_tut_path = rospack.get_path("niryo_one_tutorial")
+
     self.br = tf.TransformBroadcaster()
     rospy.logwarn("camera calibration initialized")
-    
+
     rospy.Timer(rospy.Duration(0.01), self.broadcastTransform)
     rospy.logwarn("sent first message")
 
+  def loadTransform(self):
+    with open(self.ada_tut_path + '/config/calibrationParameters.yml','r') as f:
+      calibParams = yaml.load(f)
+      #rospy.logwarn("calibParams %s"% calibParams)
+      rotation = np.array(calibParams["Rotation"])
+      translation = np.array(calibParams["Translation"])
+
+      self.camera_to_robot = np.concatenate((np.concatenate((rotation,translation), axis=1),
+                                     [[ 0, 0, 0, 1]]))
+
+
   def broadcastTransform(self, event):
     #rospy.logwarn("broadcasting tf")
+    self.loadTransform()
     self.br.sendTransform(self.camera_to_robot[0:3,3],
                           # note we pass in 4x4 to this method... https://github.com/ros/geometry/issues/64
                           tf.transformations.quaternion_from_matrix(self.camera_to_robot),
