@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import rospy
 
-import tracker_interface as tracker
+import niryo_one_tutorial.tracker_interface as tracker
 import numpy as np
 from feeding_state_transition_logic import transitionLogicDictionary, State
 from niryo_one_tutorial.srv import PlayTrajectory
@@ -19,7 +19,7 @@ class SpoonFeeder:
     self.play_trajectory_topic = "/Tapo/example_poses"
     self._play_trajectory = rospy.ServiceProxy("play_trajectory", PlayTrajectory)
     rospy.logwarn("TrackerInterface successfully initialized")
-    self._set_state(State.WAIT_FOR_SPOON_CALIBRATION) 
+    self._set_state(State.WAIT_FOR_SPOON_CALIBRATION)
     self.restart_do_pub = rospy.Publisher('/DO/restart', Empty, queue_size = 1)
 
     while not rospy.is_shutdown():
