@@ -34,14 +34,22 @@ class CameraCalibration:
     rospy.logwarn("sent first message")
 
   def loadTransform(self):
-    with open(self.ada_tut_path + '/config/calibrationParameters.yml','r') as f:
-      calibParams = yaml.load(f)
-      #rospy.logwarn("calibParams %s"% calibParams)
-      rotation = np.array(calibParams["Rotation"])
-      translation = np.array(calibParams["Translation"])
+    if rospy.has_param("camera_calib_params"):
+      calibParams = { 
+        "QuaternionXYZW": rospy.get_param("camera_calib_params/QuaternionXYZW"),
+        "TranslationXYZ": rospy.get_param("camera_calib_params/TranslationXYZ")}
+    else:
+      with open(self.ada_tut_path + '/config/calibrationParameters.yml','r') as f:
+        calibParams = yaml.load(f)
+        rospy.set_param("camera_calib_params", calibParams)
 
-      self.camera_to_robot = np.concatenate((np.concatenate((rotation,translation), axis=1),
-                                     [[ 0, 0, 0, 1]]))
+    rospy.logwarn("calibParams %s"% calibParams)
+    q = np.array(calibParams["QuaternionXYZW"])
+    translation = np.array(calibParams["TranslationXYZ"])
+    # last value should be w
+    rotation = tf.transformations.quaternion_matrix(q)
+    rotation[0:3,3] = translation[:]
+    self.camera_to_robot = rotation 
 
 
   def broadcastTransform(self, event):

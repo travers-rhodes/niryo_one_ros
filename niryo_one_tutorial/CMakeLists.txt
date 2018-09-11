@@ -16,6 +16,9 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   serial
+  interactive_markers
+  visualization_msgs
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -147,6 +150,7 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(track_pose_service src/track_pose_service.cpp)
 add_executable(domus_controller src/domus_controller.cpp)
+add_executable(interactive_calibration src/interactive_calibration.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -170,6 +174,10 @@ target_link_libraries(domus_controller
 )
 
 target_link_libraries(niryo_one_tutorial
+   ${catkin_LIBRARIES}
+)
+
+target_link_libraries(interactive_calibration
    ${catkin_LIBRARIES}
 )
 

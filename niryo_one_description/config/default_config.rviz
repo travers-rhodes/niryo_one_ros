@@ -71,6 +71,10 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        camera_rgb_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         elbow_link:
           Alpha: 1
           Show Axes: false
@@ -180,6 +184,15 @@ Visualization Manager:
       Transport Hint: raw
       Unreliable: false
       Value: false
+    - Class: rviz/InteractiveMarkers
+      Enable Transparency: true
+      Enabled: true
+      Name: InteractiveMarkers
+      Show Axes: false
+      Show Descriptions: true
+      Show Visual Aids: false
+      Update Topic: /simple_marker/update
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
