@@ -153,6 +153,8 @@
 	</link>
   <link name="spoon_link">
 	</link>
+  <link name="camera_rgb_optical_frame">
+	</link>
   <!--Joints -->
   <joint name="ground_joint" type="fixed">
     <parent link="ground_link"/>
@@ -209,7 +211,11 @@
   <joint name="hand_spoon_joint" type="fixed">
     <parent link="hand_link"/>
     <child link="spoon_link"/>
-    <!--<origin rpy="0 0 0" xyz="0.114 0.0 0.031"/>-->
-    <origin rpy="0 0 0" xyz="0.14 0.0 0.031"/>
+    <origin rpy="0 0 0" xyz="0.114 0.0 0.031"/>
+  </joint>
+  <joint name="kinect_camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_rgb_optical_frame"/>
+    <origin rpy="0 0 0" xyz="0 -0.2 0"/>
   </joint>
 </robot>
