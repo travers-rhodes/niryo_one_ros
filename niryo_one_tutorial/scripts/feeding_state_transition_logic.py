@@ -17,7 +17,8 @@ distance_to_goal_topic = "/distance_to_target" # std_msgs/Float64
 food_acquired_topic = "/food_acquired" # std_msgs/Bool from PlayTapoTrajectory
 object_in_spoon_service_name = "/detect_object_spoon" # service to detect whether there is an object in spoon
 
-hist_corr_threshold = 0.5
+hist_corr_threshold = 0.7
+food_eaten_corr_threshold = 0.9
 
 class TransitionLogic(object):
   def __enter__(self):
@@ -69,7 +70,7 @@ class DistanceBasedTransitionLogic(TopicBasedTransitionLogic):
 
 class PickUpStateTransitionLogic(TopicBasedTransitionLogic):
   def __init__(self):
-    # super nicely generates a self.topic_true attribute for us.
+    # super nicely generates a self.last_topic_value attribute for us.
     super(PickUpStateTransitionLogic, self).__init__(food_acquired_topic, Bool)
     # what we go to next depends on whether there is food in the spoon
     # however, if we're simulating the spoon we make a dummy call to service
@@ -84,13 +85,31 @@ class PickUpStateTransitionLogic(TopicBasedTransitionLogic):
     while self.last_topic_value is None or not self.last_topic_value:
       r.sleep()
     check_spoon_response = self._check_spoon()
+    rospy.logwarn("The current histogram comparison value is %f" % check_spoon_response.histCorr)
     if check_spoon_response.histCorr < hist_corr_threshold:
       return State.PREPARE_FOR_MOUTH
-    return State.PICK_UP_FOOD
+    return State.MOVE_TO_PLATE
 
 class WaitInMouthStateTransitionLogic(TransitionLogic):
+  def __init__(self):
+    # how long to wait depends on whether there is food in the spoon
+    # however, if we're simulating the spoon we make a dummy call to service
+    if rospy.get_param('~simulate_spoon'):
+      # simulate an _empty_ spoon in this case
+      self._check_spoon = lambda:ObjectSpoonResponse(1,"dummy")
+    else:
+      self._check_spoon = rospy.ServiceProxy(object_in_spoon_service_name, ObjectSpoon)
+
   def wait_and_return_next_state(self):
+    rospy.logwarn("Waiting for food to be eaten")
+    r = rospy.Rate(1) # 1Hz
     rospy.sleep(4)
+    check_spoon_response = self._check_spoon()
+    rospy.logwarn("The current histogram comparison value is %f" % check_spoon_response.histCorr)
+    while check_spoon_response.histCorr < food_eaten_corr_threshold:
+      r.sleep()
+      check_spoon_response = self._check_spoon()
+      rospy.logwarn("The current histogram comparison value is %f" % check_spoon_response.histCorr)
     return State.PREPARE_FOR_PLATE
 
 class SpoonCalibrationStateTransitionLogic(TransitionLogic):

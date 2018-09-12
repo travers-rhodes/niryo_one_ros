@@ -3,6 +3,7 @@ import rospy
 
 import niryo_one_tutorial.tracker_interface as tracker
 import numpy as np
+import tf
 from feeding_state_transition_logic import transitionLogicDictionary, State
 from niryo_one_tutorial.srv import PlayTrajectory
 from std_msgs.msg import String, Empty
@@ -14,7 +15,14 @@ class SpoonFeeder:
     rospy.logwarn("sleeping for 5 seconds before starting feeding")
     rospy.sleep(5)
     # quaternion is defined in order x,y,z,w
-    self.defaultQuat = Quaternion(0.5, 0.5, 0.5, 0.5)
+    # this is the angle we want to change the spoon around the global x axis
+    # so when we set to -np.pi/16, we tip the spoon forward so food falls more to the front of the spoon
+    spoonPitchAngle = -np.pi/16
+    # I will never remember whether multiplying quaternions acts in local or global coords.
+    # here we rotate around the global X-axis
+    defaultSpoonPose = tf.transformations.quaternion_multiply([np.sin(spoonPitchAngle/2),0,0, np.cos(spoonPitchAngle/2)],[0.5, 0.5, 0.5, 0.5])
+    # star operator works here because the order of arguments for Quaternion is also x,y,z,w
+    self.defaultQuat = Quaternion(*defaultSpoonPose)
     self.tracker = tracker.TrackerInterface(self.defaultQuat)
     self.play_trajectory_topic = "/Tapo/example_poses"
     self._play_trajectory = rospy.ServiceProxy("play_trajectory", PlayTrajectory)
@@ -40,8 +48,8 @@ class SpoonFeeder:
       self.is_first_move_to_plate = False
     elif self.state == State.PICK_UP_FOOD:
       self.restart_do_pub.publish(Empty())
-      self.xoffset = 0.03-0.1 + (np.random.uniform()-0.5) * 0.04
-      self.yoffset = 0.015+0.3
+      self.xoffset = 0.03-0.1+0.04 #+ (np.random.uniform()-0.5) * 0.04
+      self.yoffset = 0.015+0.3-0.05
       self.zoffset = rospy.get_param('~z_height')
       self.tracker.start_updating_target_to_pose(self.play_trajectory_topic,[self.xoffset, self.yoffset, self.zoffset])
       self._play_trajectory(String(self.play_trajectory_topic))
