@@ -13,7 +13,7 @@
               file="$(find niryo_one_moveit_config)/config/kinematics.yaml"/>
     <param name="sim" type="bool" value="$(arg sim)"/>
     <param name="update_rate_hz" type="double" value="30"/>
-    <param name="step_size_meters" type="double" value="0.02"/>
+    <param name="step_size_meters" type="double" value="0.01"/>
   </node>
 
   <node name="spoon_feeder" pkg="niryo_one_tutorial" type="spoon_feeder.py" unless="$(arg calibrate_only)"> 
