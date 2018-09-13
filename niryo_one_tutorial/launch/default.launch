@@ -1,6 +1,7 @@
 <launch>
   <arg name="sim"/>
   <arg name="simulate_spoon" default="$(arg sim)"/>
+  <arg name="calibrate_only" default="false"/>
 
   <include file="$(find niryo_one_moveit_config)/launch/planning_context.launch">
     <arg name="load_robot_description" value="true"/>
@@ -15,10 +16,11 @@
     <param name="step_size_meters" type="double" value="0.02"/>
   </node>
 
-  <node name="spoon_feeder" pkg="niryo_one_tutorial" type="spoon_feeder.py"> 
+  <node name="spoon_feeder" pkg="niryo_one_tutorial" type="spoon_feeder.py" unless="$(arg calibrate_only)"> 
     <param name="simulate_spoon" type="bool" value="$(arg simulate_spoon)"/>
     <param name="z_height" type="double" value="0.05"/>
   </node>
+
   <node name="play_trajectory_service" pkg="niryo_one_tutorial" type="play_trajectory_server.py"/>
 
   <!--https://answers.ros.org/question/60975/subscribe-to-new-jointstate-messages/-->

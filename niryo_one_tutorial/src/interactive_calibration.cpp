@@ -1,9 +1,13 @@
 #include <ros/ros.h>
+#include <ros/package.h>
+#include <fstream>
 
 #include <interactive_markers/interactive_marker_server.h>
 #include <tf/transform_datatypes.h>
 
 using namespace visualization_msgs;
+
+std::string _config_path;
 
 void processFeedback(
     const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback )
@@ -17,19 +21,31 @@ void processFeedback(
   std::vector<double> t = {feedback->pose.position.x, feedback->pose.position.y, feedback->pose.position.z};
   ros::param::set("camera_calib_params/QuaternionXYZW", q);
   ros::param::set("camera_calib_params/TranslationXYZ", t);
-
+  std::ofstream myfile;
+  myfile.open (_config_path + "calibrationParameters.yml");
+  myfile << "QuaternionXYZW:\n";
+  for (int i=0; i < q.size(); i++){
+    myfile << "- " << q[i] << "\n";
+  }
+  myfile << "TranslationXYZ:\n";
+  for (int i=0; i < t.size(); i++){
+    myfile << "- " << t[i] << "\n";
+  }
+  myfile.close();
 }
 
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "simple_marker");
 
+  _config_path = ros::package::getPath("niryo_one_tutorial").append("/config/");
+
   // create an interactive marker server on the topic namespace simple_marker
   interactive_markers::InteractiveMarkerServer server("simple_marker");
 
   // create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
-  int_marker.header.frame_id = "base_link";
+  int_marker.header.frame_id = "camera_rgb_optical_frame";
   int_marker.header.stamp=ros::Time::now();
   int_marker.name = "my_marker";
   int_marker.description = "Simple Control";
@@ -37,13 +53,13 @@ int main(int argc, char** argv)
   // create a grey box marker
   visualization_msgs::Marker box_marker;
   box_marker.type = visualization_msgs::Marker::CUBE;
-  box_marker.scale.x = 0.45;
-  box_marker.scale.y = 0.45;
-  box_marker.scale.z = 0.45;
+  box_marker.scale.x = 0.25;
+  box_marker.scale.y = 0.25;
+  box_marker.scale.z = 0.25;
   box_marker.color.r = 0.5;
   box_marker.color.g = 0.5;
   box_marker.color.b = 0.5;
-  box_marker.color.a = 1.0;
+  box_marker.color.a = 0.0;
 
   // create a non-interactive control which contains the box
   visualization_msgs::InteractiveMarkerControl box_control;

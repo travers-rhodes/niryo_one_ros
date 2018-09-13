@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Calibration from camera to robot"""
 import rospkg
 import yaml
@@ -43,7 +44,7 @@ class CameraCalibration:
         calibParams = yaml.load(f)
         rospy.set_param("camera_calib_params", calibParams)
 
-    rospy.logwarn("calibParams %s"% calibParams)
+    #rospy.logwarn("calibParams %s"% calibParams)
     q = np.array(calibParams["QuaternionXYZW"])
     translation = np.array(calibParams["TranslationXYZ"])
     # last value should be w
@@ -65,3 +66,8 @@ class CameraCalibration:
   # point should be a length 4 np.array giving the location of the target point in the camera frame
   def convert_to_robot_frame(self, point):
     return self.camera_to_robot.dot(point.transpose())
+
+if __name__ == "__main__":
+  rospy.init_node('camera_calibration', anonymous=True)
+  c = CameraCalibration()
+  rospy.spin()
