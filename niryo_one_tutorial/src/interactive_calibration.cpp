@@ -45,7 +45,7 @@ int main(int argc, char** argv)
 
   // create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
-  int_marker.header.frame_id = "camera_rgb_optical_frame";
+  int_marker.header.frame_id = "base_link";
   int_marker.header.stamp=ros::Time::now();
   int_marker.name = "my_marker";
   int_marker.description = "Simple Control";
@@ -74,7 +74,8 @@ int main(int argc, char** argv)
   // this control does not contain any markers,
   // which will cause RViz to insert two arrows
   visualization_msgs::InteractiveMarkerControl control;
-control.orientation.w = 1;
+    control.orientation_mode = InteractiveMarkerControl::FIXED;
+    control.orientation.w = 1;
     control.orientation.x = 1;
     control.orientation.y = 0;
     control.orientation.z = 0;

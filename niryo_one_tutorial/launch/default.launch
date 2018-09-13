@@ -1,6 +1,7 @@
 <launch>
   <arg name="sim"/>
   <arg name="simulate_spoon" default="$(arg sim)"/>
+  <arg name="simulate_mouth" default="$(arg sim)"/>
   <arg name="calibrate_only" default="false"/>
 
   <include file="$(find niryo_one_moveit_config)/launch/planning_context.launch">
@@ -19,6 +20,7 @@
   <node name="spoon_feeder" pkg="niryo_one_tutorial" type="spoon_feeder.py" unless="$(arg calibrate_only)"> 
     <param name="simulate_spoon" type="bool" value="$(arg simulate_spoon)"/>
     <param name="z_height" type="double" value="0.05"/>
+    <param name="simulate_mouth" type="bool" value="$(arg simulate_mouth)"/>
   </node>
 
   <node name="play_trajectory_service" pkg="niryo_one_tutorial" type="play_trajectory_server.py"/>

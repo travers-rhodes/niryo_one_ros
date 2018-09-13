@@ -36,7 +36,7 @@ class SpoonFeeder:
 
   def _update_tracker_based_on_state(self):
     if self.state == State.MOVE_TO_PLATE:
-      self.tracker.start_tracking_fixed_target([0.2,-0.05,0.17])
+      self.tracker.start_tracking_fixed_target([0.3,0.05,0.17])
       self.is_first_move_to_plate = False
     elif self.state == State.PICK_UP_FOOD:
       self.restart_do_pub.publish(Empty())
@@ -49,7 +49,11 @@ class SpoonFeeder:
       self.restart_do_pub.publish(Empty())
       self.tracker.start_tracking_fixed_target([0.3,0.15,0.27])
     elif self.state == State.MOVE_TO_MOUTH:
-      self.tracker.start_updating_target_to_point("/DO/inferenceOut/Point")
+      isSimulateMouth = rospy.get_param('~simulate_mouth')
+      if isSimulateMouth:
+        self.tracker.start_tracking_fixed_target([0.2,0.25,0.27])
+      else:  
+        self.tracker.start_updating_target_to_point("/DO/inferenceOut/Point")
     elif self.state == State.WAIT_IN_MOUTH:
       self.tracker.stop_moving()
     elif self.state == State.PREPARE_FOR_PLATE:
