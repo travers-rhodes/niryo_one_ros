@@ -49,11 +49,11 @@ class SpoonFeeder:
       self.restart_do_pub.publish(Empty())
       self.tracker.start_tracking_fixed_target([0.3,0.15,0.27])
     elif self.state == State.MOVE_TO_MOUTH:
-      isSimulateMouth = rospy.get_param('~simulate_mouth')
-      if isSimulateMouth:
-        self.tracker.start_tracking_fixed_target([0.2,0.25,0.27])
-      else:  
+      follow_mouth = rospy.get_param('~follow_mouth')
+      if follow_mouth:
         self.tracker.start_updating_target_to_point("/DO/inferenceOut/Point")
+      else:  
+        self.tracker.start_tracking_fixed_target([0.27,0.25,0.27])
     elif self.state == State.WAIT_IN_MOUTH:
       self.tracker.stop_moving()
     elif self.state == State.PREPARE_FOR_PLATE:
