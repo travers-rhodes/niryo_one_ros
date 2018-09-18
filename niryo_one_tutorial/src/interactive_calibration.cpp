@@ -45,7 +45,9 @@ int main(int argc, char** argv)
 
   // create an interactive marker for our server
   visualization_msgs::InteractiveMarker int_marker;
-  int_marker.header.frame_id = "base_link";
+  std::string world_frame_name;
+  ros::param::get("~world_frame_name", world_frame_name);
+  int_marker.header.frame_id = world_frame_name;
   int_marker.header.stamp=ros::Time::now();
   int_marker.name = "my_marker";
   int_marker.description = "Simple Control";

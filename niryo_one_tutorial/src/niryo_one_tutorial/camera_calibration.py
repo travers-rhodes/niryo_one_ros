@@ -7,7 +7,7 @@ import numpy as np
 import rospy
 
 class CameraCalibration:
-  def __init__(self):
+  def __init__(self, world_frame_name = "base_link", target_frame_name="camera_rgb_optical_frame"):
     """
     cameraCalibration.yml is something like:
     Rotation:
@@ -27,6 +27,9 @@ class CameraCalibration:
     """
     rospack = rospkg.RosPack()
     self.ada_tut_path = rospack.get_path("niryo_one_tutorial")
+
+    self.world_frame_name = world_frame_name
+    self.target_frame_name = target_frame_name
 
     self.br = tf.TransformBroadcaster()
     rospy.logwarn("camera calibration initialized")
@@ -60,8 +63,8 @@ class CameraCalibration:
                           # note we pass in 4x4 to this method... https://github.com/ros/geometry/issues/64
                           tf.transformations.quaternion_from_matrix(self.camera_to_robot),
                           rospy.Time.now(),
-                          "camera_rgb_optical_frame",
-                          "base_link")
+                          self.target_frame_name,
+                          self.world_frame_name)
 
   # point should be a length 4 np.array giving the location of the target point in the camera frame
   def convert_to_robot_frame(self, point):
@@ -69,5 +72,5 @@ class CameraCalibration:
 
 if __name__ == "__main__":
   rospy.init_node('camera_calibration', anonymous=True)
-  c = CameraCalibration()
+  c = CameraCalibration(rospy.get_param("~world_frame_name"), rospy.get_param("~target_frame_name"))
   rospy.spin()

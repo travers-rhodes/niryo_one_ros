@@ -1,13 +1,25 @@
 <launch>
     <arg name="sim"/>
+    <arg name="calibrate_to_opti" default="false"/>
+    <arg name="world_frame_name" default="base_link"/>
+    <arg name="target_frame_name" default="camera_rgb_optical_frame"/>
 
     <include file="$(find freenect_launch)/launch/examples/freenect-registered-xyzrgb.launch"/>
-    <include file="$(find niryo_one_tutorial)/launch/default.launch">
+    <include file="$(find niryo_one_tutorial)/launch/default.launch" unless="$(arg calibrate_to_opti)">
       <arg name="sim" value="$(arg sim)"/>
       <arg name="simulate_spoon" value="true"/>
       <arg name="calibrate_only" value="true"/>
     </include>
 
-    <node name="camera_calibration" pkg="niryo_one_tutorial" type="camera_calibration.py"/> 
-    <node name="interactive_calibration" pkg="niryo_one_tutorial" type="interactive_calibration"/>
+    <include file="$(find record_mocap)/launch/default.launch" if="$(arg calibrate_to_opti)"/> 
+
+    <node name="camera_calibration" pkg="niryo_one_tutorial" type="camera_calibration.py">
+      <param name="world_frame_name" value="$(arg world_frame_name)"/>
+      <param name="target_frame_name" value="$(arg target_frame_name)"/>
+    </node>
+    <node name="interactive_calibration" pkg="niryo_one_tutorial" type="interactive_calibration">
+      <param name="world_frame_name" value="$(arg world_frame_name)"/>
+    </node>
+    <node pkg="tf" type="static_transform_publisher" name="rviz_view_broadcaster" args="0 0 0 .5 .5 .5 -.5 world rviz_world 100" />
+    
 </launch>
