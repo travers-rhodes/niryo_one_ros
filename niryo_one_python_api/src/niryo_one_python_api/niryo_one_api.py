@@ -95,18 +95,18 @@ class NiryoOne:
     class __NiryoOne:
 
         def __init__(self):
-            self.service_timeout = rospy.get_param("/niryo_one/python_api/service_timeout")
-            self.action_connection_timeout = rospy.get_param("/niryo_one/python_api/action_connection_timeout")
-            self.action_execute_timeout = rospy.get_param("/niryo_one/python_api/action_execute_timeout")
-            self.action_preempt_timeout = rospy.get_param("/niryo_one/python_api/action_preempt_timeout")
-            self.tool_command_list = rospy.get_param("/niryo_one_tools/command_list") 
+            self.service_timeout = rospy.get_param("niryo_one/python_api/service_timeout")
+            self.action_connection_timeout = rospy.get_param("niryo_one/python_api/action_connection_timeout")
+            self.action_execute_timeout = rospy.get_param("niryo_one/python_api/action_execute_timeout")
+            self.action_preempt_timeout = rospy.get_param("niryo_one/python_api/action_preempt_timeout")
+            self.tool_command_list = rospy.get_param("niryo_one_tools/command_list") 
 
             # Subscribers
-            self.joint_states_sub = rospy.Subscriber('/joint_states', JointState, self.sub_joint_states)
-            self.robot_state_sub  = rospy.Subscriber('/niryo_one/robot_state', RobotState, self.sub_robot_state)
-            self.hardware_status_sub  = rospy.Subscriber('/niryo_one/hardware_status', HardwareStatus, self.sub_hardware_status)
-            self.learning_mode_sub  = rospy.Subscriber('/niryo_one/learning_mode', Bool, self.sub_learning_mode)
-            self.digital_io_state_sub = rospy.Subscriber('/niryo_one/rpi/digital_io_state', DigitalIOState, self.sub_digital_io_state)
+            self.joint_states_sub = rospy.Subscriber('joint_states', JointState, self.sub_joint_states)
+            self.robot_state_sub  = rospy.Subscriber('niryo_one/robot_state', RobotState, self.sub_robot_state)
+            self.hardware_status_sub  = rospy.Subscriber('niryo_one/hardware_status', HardwareStatus, self.sub_hardware_status)
+            self.learning_mode_sub  = rospy.Subscriber('niryo_one/learning_mode', Bool, self.sub_learning_mode)
+            self.digital_io_state_sub = rospy.Subscriber('niryo_one/rpi/digital_io_state', DigitalIOState, self.sub_digital_io_state)
 
             # Highlight publisher (to highlight blocks in Blockly interface)
             self.highlight_block_publisher = rospy.Publisher('/niryo_one/blockly/highlight_block', String, queue_size=10)
@@ -288,7 +288,7 @@ class NiryoOne:
             return self.execute_action('niryo_one/commander/robot_action', RobotMoveAction, goal)
 
         def set_arm_max_velocity(self, percentage):
-            result = self.call_service('/niryo_one/commander/set_max_velocity_scaling_factor',
+            result = self.call_service('niryo_one/commander/set_max_velocity_scaling_factor',
                     SetInt, [percentage])
             if result.status != 200:
                 raise NiryoOneException(result.message)

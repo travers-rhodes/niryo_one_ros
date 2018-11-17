@@ -37,10 +37,10 @@ class SequenceManager:
         self.blockly_generator = BlocklyCodeGenerator()
 
         self.get_sequence_list_server = rospy.Service(
-                '/niryo_one/sequences/get_sequence_list', GetSequenceList, self.callback_get_sequence_list)
+                'niryo_one/sequences/get_sequence_list', GetSequenceList, self.callback_get_sequence_list)
 
         self.manage_command_server = rospy.Service(
-                '/niryo_one/sequences/manage_sequence', ManageSequence, self.callback_manage_sequence)
+                'niryo_one/sequences/manage_sequence', ManageSequence, self.callback_manage_sequence)
 
     def get_python_code_from_xml(self, xml):
         return self.blockly_generator.get_generated_python_code(xml)

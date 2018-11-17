@@ -135,13 +135,13 @@ class RosLogManager:
             rospy.logwarn("Purging ROS log on startup !")
             print self.purge_log()
 
-        self.purge_log_server = rospy.Service('/niryo_one/rpi/purge_ros_logs', SetInt,
+        self.purge_log_server = rospy.Service('niryo_one/rpi/purge_ros_logs', SetInt,
                 self.callback_purge_log)
 
-        self.change_purge_log_on_startup_server = rospy.Service('/niryo_one/rpi/set_purge_ros_log_on_startup', SetInt,
+        self.change_purge_log_on_startup_server = rospy.Service('niryo_one/rpi/set_purge_ros_log_on_startup', SetInt,
                 self.callback_change_purge_log_on_startup)
 
-        self.log_status_publisher = rospy.Publisher('/niryo_one/rpi/ros_log_status', LogStatus, queue_size=10)
+        self.log_status_publisher = rospy.Publisher('niryo_one/rpi/ros_log_status', LogStatus, queue_size=10)
         self.timer = rospy.Timer(rospy.Duration(3.0), self.publish_log_status)
 
         rospy.loginfo("Init Ros Log Manager OK")

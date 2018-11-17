@@ -66,14 +66,14 @@ class LEDManager:
             leds = [7,7,7,8]
         
         try:
-            rospy.wait_for_service('/niryo_one/set_dxl_leds', timeout=1)
+            rospy.wait_for_service('niryo_one/set_dxl_leds', timeout=1)
         except rospy.ROSException, e:
             rospy.logwarn("Niryo ROS control LED service is not up!")
         try:
-            set_dxl_leds = rospy.ServiceProxy('/niryo_one/set_dxl_leds', SetLeds)
+            set_dxl_leds = rospy.ServiceProxy('niryo_one/set_dxl_leds', SetLeds)
             set_dxl_leds(leds)
         except rospy.ServiceException, e:
-            rospy.logwarn("Could not call /niryo_one/set_dxl_leds service")
+            rospy.logwarn("Could not call niryo_one/set_dxl_leds service")
             
 
     def set_led(self, color, dxl_leds=False):
@@ -156,14 +156,14 @@ class LEDManager:
         self.state = LED_STATE_OK 
         self.set_led_from_state(dxl_leds=True)
    
-        self.set_led_state_server = rospy.Service('/niryo_one/rpi/set_led_state', 
+        self.set_led_state_server = rospy.Service('niryo_one/rpi/set_led_state', 
                 SetInt, self.callback_set_led_state)
 
         # Subscribe to hotspot and hardware status. Those values will override standard states
-        self.hotspot_state_subscriber = rospy.Subscriber('/niryo_one/wifi/hotspot',
+        self.hotspot_state_subscriber = rospy.Subscriber('niryo_one/wifi/hotspot',
                 Bool, self.callback_hotspot_state)
 
-        self.hardware_status_subscriber = rospy.Subscriber('/niryo_one/hardware_status',
+        self.hardware_status_subscriber = rospy.Subscriber('niryo_one/hardware_status',
                HardwareStatus, self.callback_hardware_status)
 
         rospy.loginfo('LED manager has been started.')

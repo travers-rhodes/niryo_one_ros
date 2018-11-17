@@ -82,8 +82,8 @@ int DxlCommunication::init(int hardware_version)
     // get required and authorized motors ids
     std::vector<int> required_dxl_ids;
     std::vector<int> allowed_dxl_ids;
-    ros::param::get("/niryo_one/motors/dxl_required_motors", required_dxl_ids);
-    ros::param::get("/niryo_one/motors/dxl_authorized_motors", allowed_dxl_ids);
+    ros::param::get("niryo_one/motors/dxl_required_motors", required_dxl_ids);
+    ros::param::get("niryo_one/motors/dxl_authorized_motors", allowed_dxl_ids);
     
     required_motors_ids.insert(required_motors_ids.end(), required_dxl_ids.begin(), required_dxl_ids.end());
     allowed_motors_ids.insert(allowed_motors_ids.end(), required_dxl_ids.begin(), required_dxl_ids.end());

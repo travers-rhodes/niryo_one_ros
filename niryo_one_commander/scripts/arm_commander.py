@@ -150,16 +150,16 @@ class ArmCommander:
         self.traj_finished_event = threading.Event()
         self.current_goal_id = None
         self.current_goal_result = GoalStatus.LOST
-        rospy.Subscriber('/niryo_one_follow_joint_trajectory_controller/follow_joint_trajectory/goal',
+        rospy.Subscriber('niryo_one_follow_joint_trajectory_controller/follow_joint_trajectory/goal',
                 FollowJointTrajectoryActionGoal, self.callback_current_goal)
 
-        rospy.Subscriber('/niryo_one_follow_joint_trajectory_controller/follow_joint_trajectory/result',
+        rospy.Subscriber('niryo_one_follow_joint_trajectory_controller/follow_joint_trajectory/result',
                 FollowJointTrajectoryActionResult, self.callback_goal_result)
 
         # Direct topic to joint_trajectory_controller
         # Used ONLY when goal is aborted, to enter position hold mode
         self.joint_trajectory_publisher = rospy.Publisher(
-                '/niryo_one_follow_joint_trajectory_controller/command',
+                'niryo_one_follow_joint_trajectory_controller/command',
                 JointTrajectory, queue_size=10)
 
 

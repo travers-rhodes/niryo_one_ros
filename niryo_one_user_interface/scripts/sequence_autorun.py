@@ -80,8 +80,8 @@ class SequenceAutorun:
 
     def send_calibration_command(self):
         try:
-            rospy.wait_for_service('/niryo_one/calibrate_motors', 0.1)
-            start_calibration = rospy.ServiceProxy('/niryo_one/calibrate_motors', SetInt)
+            rospy.wait_for_service('niryo_one/calibrate_motors', 0.1)
+            start_calibration = rospy.ServiceProxy('niryo_one/calibrate_motors', SetInt)
             start_calibration(1) # 1 : calibration auto
         except (rospy.ServiceException, rospy.ROSException), e:
             return False
@@ -90,8 +90,8 @@ class SequenceAutorun:
 
     def activate_learning_mode(self, activate):
         try: 
-            rospy.wait_for_service('/niryo_one/activate_learning_mode', 0.1)
-            activate_learning_mode = rospy.ServiceProxy('/niryo_one/activate_learning_mode', SetInt)
+            rospy.wait_for_service('niryo_one/activate_learning_mode', 0.1)
+            activate_learning_mode = rospy.ServiceProxy('niryo_one/activate_learning_mode', SetInt)
             activate_learning_mode(int(activate))
         except (rospy.ServiceException, rospy.ROSException), e:
             return False
@@ -117,7 +117,7 @@ class SequenceAutorun:
             self.sequence_action_client.cancel_goal()
 
     def send_robot_to_sleep_position(self):
-        client = actionlib.SimpleActionClient('/niryo_one/commander/robot_action', RobotMoveAction)
+        client = actionlib.SimpleActionClient('niryo_one/commander/robot_action', RobotMoveAction)
         if not client.wait_for_server(rospy.Duration(1.0)):
             return
         goal = RobotMoveGoal()
@@ -188,25 +188,25 @@ class SequenceAutorun:
         self.calibration_needed = None
         self.calibration_in_progress = None
         self.hardware_status_subscriber = rospy.Subscriber(
-                '/niryo_one/hardware_status', HardwareStatus, self.sub_hardware_status)
+                'niryo_one/hardware_status', HardwareStatus, self.sub_hardware_status)
 
         self.learning_mode_on = None
         self.learning_mode_subscriber = rospy.Subscriber(
-                '/niryo_one/learning_mode', Bool, self.sub_learning_mode)
+                'niryo_one/learning_mode', Bool, self.sub_learning_mode)
 
         # Wait for sequence action server to finish setup
         self.sequence_action_client = actionlib.SimpleActionClient('niryo_one/sequences/execute', SequenceAction)
         self.sequence_action_client.wait_for_server()
         
         self.sequence_autorun_status_publisher = rospy.Publisher(
-                '/niryo_one/sequences/sequence_autorun_status', SequenceAutorunStatus, queue_size=10)
+                'niryo_one/sequences/sequence_autorun_status', SequenceAutorunStatus, queue_size=10)
         self.timer = rospy.Timer(rospy.Duration(3.0), self.publish_sequence_autorun_status)
         
         self.set_sequence_autorun_server = rospy.Service(
-                '/niryo_one/sequences/set_sequence_autorun', SetSequenceAutorun, self.callback_set_sequence_autorun)
+                'niryo_one/sequences/set_sequence_autorun', SetSequenceAutorun, self.callback_set_sequence_autorun)
 
         self.trigger_sequence_autorun = rospy.Service(
-                '/niryo_one/sequences/trigger_sequence_autorun', SetInt, self.callback_trigger_sequence_autorun)
+                'niryo_one/sequences/trigger_sequence_autorun', SetInt, self.callback_trigger_sequence_autorun)
 
         self.sequence_autorun_thread = Thread(name="worker", target=self.execute_sequence_autorun_thread)
         self.sequence_autorun_thread.setDaemon(True)

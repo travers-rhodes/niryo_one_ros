@@ -44,7 +44,7 @@ class ShutdownManager:
                     'message': 'Incorrect value: 1 for shutdown, 2 for reboot' }
 
     def __init__(self):
-        self.shutdown_rpi_sever = rospy.Service('/niryo_one/rpi/shutdown_rpi', 
+        self.shutdown_rpi_sever = rospy.Service('niryo_one/rpi/shutdown_rpi', 
                 SetInt, self.callback_shutdown_rpi) 
         rospy.loginfo("Shutdown Manager OK")
 

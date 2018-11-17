@@ -97,12 +97,12 @@ class NiryoOneDriver {
 
     NiryoOneDriver() 
     {
-        reset_controller_subscriber = nh_.subscribe("/niryo_one/steppers_reset_controller", 10,  &NiryoOneDriver::callbackTrajectoryGoal, this);
+        reset_controller_subscriber = nh_.subscribe("niryo_one/steppers_reset_controller", 10,  &NiryoOneDriver::callbackTrajectoryGoal, this);
         
-        trajectory_result_subscriber = nh_.subscribe("/niryo_one_follow_joint_trajectory_controller/follow_joint_trajectory/result",
+        trajectory_result_subscriber = nh_.subscribe("niryo_one_follow_joint_trajectory_controller/follow_joint_trajectory/result",
                 10, &NiryoOneDriver::callbackTrajectoryResult, this);
 
-        ros::param::get("/niryo_one/hardware_version", hardware_version);
+        ros::param::get("niryo_one/hardware_version", hardware_version);
         
         if (hardware_version != 1 && hardware_version != 2) {
             ROS_ERROR("Incorrect hardware version, should be 1 or 2");

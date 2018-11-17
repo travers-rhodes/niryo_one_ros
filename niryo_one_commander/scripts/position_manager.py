@@ -40,14 +40,14 @@ class PositionManager:
    
     def __init__(self, position_dir):
         self.fh = PositionFileHandler(position_dir)
-        self.manage_position_server = rospy.Service('/niryo_one/position/manage_position', ManagePosition, self.callback_manage_position)
+        self.manage_position_server = rospy.Service('niryo_one/position/manage_position', ManagePosition, self.callback_manage_position)
         rospy.loginfo("service manage position created") 
         
         self.get_position_list_server = rospy.Service(
-                '/niryo_one/position/get_position_list', GetPositionList, self.callback_get_position_list)
+                'niryo_one/position/get_position_list', GetPositionList, self.callback_get_position_list)
         rospy.loginfo("get list position created") 
         
-        self.validation = rospy.get_param("/niryo_one/robot_command_validation")
+        self.validation = rospy.get_param("niryo_one/robot_command_validation")
         self.parameters_validation = ParametersValidation(self.validation)
     
     def create_position_response(self, status, message, position=None):

@@ -88,7 +88,7 @@ class HoldingRegisterDataBlock(NiryoOneDataBlock):
         self.execution_thread = threading.Thread()
         self.is_action_client_running = False
         self.cmd_action_client = None
-        self.tool_command_list = rospy.get_param("/niryo_one_tools/command_list") 
+        self.tool_command_list = rospy.get_param("niryo_one_tools/command_list") 
         
     # Override
     def setValues(self, address, values):
@@ -128,28 +128,28 @@ class HoldingRegisterDataBlock(NiryoOneDataBlock):
             self.push_air_vacuum_pump_command(values[0])
 
     def request_new_calibration(self):
-        self.call_ros_service('/niryo_one/request_new_calibration', SetInt, [1])
+        self.call_ros_service('niryo_one/request_new_calibration', SetInt, [1])
     
     def start_auto_calibration(self):
-        self.call_ros_service('/niryo_one/calibrate_motors', SetInt, [1])
+        self.call_ros_service('niryo_one/calibrate_motors', SetInt, [1])
 
     def start_manual_calibration(self):
-        self.call_ros_service('/niryo_one/calibrate_motors', SetInt, [2])
+        self.call_ros_service('niryo_one/calibrate_motors', SetInt, [2])
 
     def activate_learning_mode(self, activate):
         activate = int(activate >= 1)
-        self.call_ros_service('/niryo_one/activate_learning_mode', SetInt, [activate])
+        self.call_ros_service('niryo_one/activate_learning_mode', SetInt, [activate])
 
     def enable_joystick(self, enable):
         enable = int(enable >= 1)
-        self.call_ros_service('/niryo_one/joystick_interface/enable', SetInt, [enable])
+        self.call_ros_service('niryo_one/joystick_interface/enable', SetInt, [enable])
     
     def stop_current_command(self):
         if self.is_action_client_running:
             self.cmd_action_client.cancel_goal()
 
     def select_tool(self, tool_id):
-        self.call_ros_service('/niryo_one/change_tool', SetInt, [int(tool_id)])
+        self.call_ros_service('niryo_one/change_tool', SetInt, [int(tool_id)])
 
     def open_gripper_command(self, tool_id):
         speed = self.getValuesOffset(HR_GRIPPER_OPEN_SPEED, 1)[0]

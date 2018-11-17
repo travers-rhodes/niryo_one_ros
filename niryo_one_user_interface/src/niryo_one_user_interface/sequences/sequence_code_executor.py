@@ -77,8 +77,8 @@ class SequenceCodeExecutor:
     def stop_robot_action(self):
         # Stop current move command
         try:
-            rospy.wait_for_service('/niryo_one/commander/stop_command', 1)
-            stop_cmd = rospy.ServiceProxy('/niryo_one/commander/stop_command', SetBool)
+            rospy.wait_for_service('niryo_one/commander/stop_command', 1)
+            stop_cmd = rospy.ServiceProxy('niryo_one/commander/stop_command', SetBool)
             stop_cmd()
         except (rospy.ServiceException, rospy.ROSException), e:
             pass

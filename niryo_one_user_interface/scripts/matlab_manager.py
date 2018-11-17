@@ -57,8 +57,8 @@ class MatlabManager:
         rospy.loginfo("Matlab Move Result Published")
 
     def __init__(self): 
-        self.matlab_node=rospy.Subscriber('/niryo_one_matlab/command',RobotMoveCommand,self.callback_matlab_node)  
-        self.matlab_node_publisher=rospy.Publisher('/niryo_one_matlab/result',MatlabMoveResult,queue_size=10) 
+        self.matlab_node=rospy.Subscriber('niryo_one_matlab/command',RobotMoveCommand,self.callback_matlab_node)  
+        self.matlab_node_publisher=rospy.Publisher('niryo_one_matlab/result',MatlabMoveResult,queue_size=10) 
         rospy.loginfo('..............Matlab OK.................') 
     
     def send_matlab_command(self,commande):
@@ -67,7 +67,7 @@ class MatlabManager:
         return  self.action_client_matlab.get_result()
     
     def send_matlab_goal(self,cmd,cmd_type):    
-        self.action_client_matlab= actionlib.SimpleActionClient('/niryo_one/commander/robot_action',niryo_one_msgs.msg.RobotMoveAction)
+        self.action_client_matlab= actionlib.SimpleActionClient('niryo_one/commander/robot_action',niryo_one_msgs.msg.RobotMoveAction)
         rospy.loginfo("waiting for action server: niryo_one/robot_action....")
         self.action_client_matlab.wait_for_server()
         rospy.loginfo("Found action server : niryo_one/robot_action")

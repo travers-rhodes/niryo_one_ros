@@ -70,7 +70,7 @@ int change_hardware_version_and_reboot(int old_version, int new_version)
     ROS_INFO("Successfully changed hardware version in launch file (from V%d to V%d)", old_version, new_version);
 
     bool reboot;
-    ros::param::get("/niryo_one/reboot_when_auto_change_version", reboot);
+    ros::param::get("niryo_one/reboot_when_auto_change_version", reboot);
 
     if (reboot) {
         ROS_INFO("Reboot in 1 second...");
