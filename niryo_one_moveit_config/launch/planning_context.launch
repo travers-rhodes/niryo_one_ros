@@ -1,12 +1,10 @@
 <launch>
-  <!-- optionally, add a prefix to the beginning of link names (since tf_prefix is not supported in tf2) -->
   <arg name="link_prefix"/>
-
   <!-- By default we do not overwrite the URDF. Change the following to true to change the default behavior -->
   <arg name="load_robot_description" default="false"/>
 
   <!-- The name of the parameter under which the URDF is loaded -->
-  <arg name="robot_description" default="$(arg link_prefix)robot_description"/>
+  <arg name="robot_description" default="robot_description"/>
 
   <!-- Load universal robot description format (URDF) -->
   <param if="$(arg load_robot_description)" name="$(arg robot_description)" command="$(find xacro)/xacro --inorder $(find niryo_one_description)/urdf/v2/niryo_one.urdf.xacro link_prefix:=$(arg link_prefix)"/>
