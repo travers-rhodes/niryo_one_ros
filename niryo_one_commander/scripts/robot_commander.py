@@ -88,8 +88,8 @@ class RobotCommander:
 
     def activate_learning_mode(self, activate):
         try:
-            rospy.wait_for_service('/niryo_one/activate_learning_mode', 1)
-            srv = rospy.ServiceProxy('/niryo_one/activate_learning_mode', SetInt)
+            rospy.wait_for_service('niryo_one/activate_learning_mode', 1)
+            srv = rospy.ServiceProxy('niryo_one/activate_learning_mode', SetInt)
             resp = srv(int(activate))
             return (resp.status == 200)
         except (rospy.ServiceException, rospy.ROSException), e:
@@ -124,7 +124,7 @@ class RobotCommander:
         self.stop_trajectory_server = rospy.Service(
                 'niryo_one/commander/stop_command', SetBool, self.callback_stop_command)
 
-        self.reset_controller_pub = rospy.Publisher('/niryo_one/steppers_reset_controller',
+        self.reset_controller_pub = rospy.Publisher('niryo_one/steppers_reset_controller',
              Empty, queue_size=1)
         
         # robot action server 
@@ -138,22 +138,22 @@ class RobotCommander:
                 'niryo_one/commander/is_active', GetInt, self.callback_is_active)
 
         self.learning_mode_subscriber = rospy.Subscriber(
-                '/niryo_one/learning_mode', Bool, self.callback_learning_mode)
-        self.joystick_enabled_subscriber = rospy.Subscriber('/niryo_one/joystick_interface/is_enabled', 
+                'niryo_one/learning_mode', Bool, self.callback_learning_mode)
+        self.joystick_enabled_subscriber = rospy.Subscriber('niryo_one/joystick_interface/is_enabled', 
                 Bool, self.callback_joystick_enabled)
         self.hardware_status_subscriber = rospy.Subscriber(
-                '/niryo_one/hardware_status', HardwareStatus, self.callback_hardware_status)
+                'niryo_one/hardware_status', HardwareStatus, self.callback_hardware_status)
         
-        self.validation = rospy.get_param("/niryo_one/robot_command_validation")
+        self.validation = rospy.get_param("niryo_one/robot_command_validation")
         self.parameters_validation = ParametersValidation(self.validation)
         
         # arm velocity
         self.max_velocity_scaling_factor = 100
         self.max_velocity_scaling_factor_pub = rospy.Publisher(
-                '/niryo_one/max_velocity_scaling_factor', Int32, queue_size=10)
+                'niryo_one/max_velocity_scaling_factor', Int32, queue_size=10)
         self.timer = rospy.Timer(rospy.Duration(1.0), self.publish_arm_max_velocity_scaling_factor)
         self.max_velocity_scaling_factor_server = rospy.Service(
-                '/niryo_one/commander/set_max_velocity_scaling_factor', SetInt, 
+                'niryo_one/commander/set_max_velocity_scaling_factor', SetInt, 
                 self.callback_set_max_velocity_scaling_factor)
 
     def set_saved_position(self, cmd):

@@ -72,20 +72,20 @@ class JointMode:
 
         # Get params from rosparams
         self.timer_rate = rospy.get_param("~joystick_timer_rate_sec")
-        self.validation = rospy.get_param("/niryo_one/robot_command_validation")
+        self.validation = rospy.get_param("niryo_one/robot_command_validation")
         self.joint_mode_timer = None
         
         self.synchronization_needed = True
         self.is_enabled = False
 
-        self.joint_state_subscriber = rospy.Subscriber('/joint_states', 
+        self.joint_state_subscriber = rospy.Subscriber('joint_states', 
                 JointState, self.callback_joint_states)
         
         self.learning_mode_subscriber = rospy.Subscriber(
-                '/niryo_one/learning_mode', Bool, self.callback_learning_mode)
+                'niryo_one/learning_mode', Bool, self.callback_learning_mode)
 
         self.joint_trajectory_publisher = rospy.Publisher(
-                '/niryo_one_follow_joint_trajectory_controller/command',
+                'niryo_one_follow_joint_trajectory_controller/command',
                 JointTrajectory, queue_size=10)
 
         self.axes = [0,0,0,0,0,0,0,0]
@@ -236,9 +236,9 @@ class JointMode:
 class JoystickInterface:
 
     def can_enable(self):
-        rospy.wait_for_service('/niryo_one/commander/is_active')
+        rospy.wait_for_service('niryo_one/commander/is_active')
         try:
-            is_active = rospy.ServiceProxy('/niryo_one/commander/is_active', GetInt)
+            is_active = rospy.ServiceProxy('niryo_one/commander/is_active', GetInt)
             response = is_active()
             return (response.value == 0)
         except rospy.ServiceException, e:
@@ -268,9 +268,9 @@ class JoystickInterface:
         joy_subscriber = rospy.Subscriber('joy', Joy, self.callback_joy)
         
         self.joystick_server = rospy.Service(
-            '/niryo_one/joystick_interface/enable', SetInt, self.callback_enable_joystick)
+            'niryo_one/joystick_interface/enable', SetInt, self.callback_enable_joystick)
 
-        self.joystick_enabled_publisher = rospy.Publisher('/niryo_one/joystick_interface/is_enabled', 
+        self.joystick_enabled_publisher = rospy.Publisher('niryo_one/joystick_interface/is_enabled', 
                 Bool, queue_size=1)
 
         rospy.Timer(rospy.Duration(2), self.publish_joystick_enabled)

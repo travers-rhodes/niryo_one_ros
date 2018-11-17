@@ -29,8 +29,8 @@ RosInterface::RosInterface(CommunicationBase* niryo_one_comm, RpiDiagnostics* rp
     this->hardware_version = hardware_version;
     last_connection_up_flag = true;
     
-    ros::param::get("/niryo_one/info/image_version", rpi_image_version);
-    ros::param::get("/niryo_one/info/ros_version", ros_niryo_one_version);
+    ros::param::get("niryo_one/info/image_version", rpi_image_version);
+    ros::param::get("niryo_one/info/ros_version", ros_niryo_one_version);
    
     // trim string
     rpi_image_version.erase(rpi_image_version.find_last_not_of(" \n\r\t")+1);

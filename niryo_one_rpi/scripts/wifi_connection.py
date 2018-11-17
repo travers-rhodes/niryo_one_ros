@@ -109,11 +109,11 @@ class WifiConnectionManager:
         flask_thread.start()
 
         # Start wifi status publisher
-        self.hotspot_state_publisher = rospy.Publisher('/niryo_one/wifi/hotspot', Bool, queue_size=2)
+        self.hotspot_state_publisher = rospy.Publisher('niryo_one/wifi/hotspot', Bool, queue_size=2)
         rospy.Timer(rospy.Duration(1), self.send_hotspot_state)
 
         # Start hotspot subscriber (from button)
-        self.activate_hotspot_server = rospy.Service('/niryo_one/wifi/set_hotspot', 
+        self.activate_hotspot_server = rospy.Service('niryo_one/wifi/set_hotspot', 
                 SetInt, self.callback_activate_hotspot)
         
         rospy.loginfo("Wifi manager started")

@@ -37,7 +37,7 @@ class ShutdownManager:
         return {'status': 400, 'message': 'Robot is not shutting down : try request value :1 to shutdown rpi'}
 
     def __init__(self):
-        self.shutdown_rpi_sever=rospy.Service('/niryo_one/rpi/shutdown_rpi', SetInt, self.callback_shutdown_rpi) 
+        self.shutdown_rpi_sever=rospy.Service('niryo_one/rpi/shutdown_rpi', SetInt, self.callback_shutdown_rpi) 
         rospy.loginfo("Shutdown Manager OK")
 
 
