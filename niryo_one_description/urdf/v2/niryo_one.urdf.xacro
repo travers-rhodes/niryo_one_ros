@@ -20,7 +20,9 @@
 -->
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="niryo_one">
-	
+        <!-- Add an xacro arg to simulate tf_prefix -->	
+    <xacro:arg name="link_prefix" default=""/>
+
 	<!-- Properties -->
 
     <xacro:property name="distance_origin_shoulder_z" value="0.103" />
@@ -59,9 +61,9 @@
 
 	<!-- Links -->
 
-    <link name="ground_link"/>
+    <link name="$(arg link_prefix)ground_link"/>
 
-    <link name="base_link">
+    <link name="$(arg link_prefix)base_link">
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
@@ -76,7 +78,7 @@
         </collision>
 	</link>
 
-    <link name="shoulder_link">
+    <link name="$(arg link_prefix)shoulder_link">
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
@@ -91,7 +93,7 @@
         </collision>
 	</link>
 
-    <link name="arm_link">
+    <link name="$(arg link_prefix)arm_link">
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
@@ -106,7 +108,7 @@
         </collision>
 	</link>
 	
-    <link name="elbow_link">
+    <link name="$(arg link_prefix)elbow_link">
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
@@ -121,7 +123,7 @@
         </collision>
 	</link>
 
-    <link name="forearm_link">
+    <link name="$(arg link_prefix)forearm_link">
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
@@ -136,7 +138,7 @@
         </collision>
 	</link>
 
-    <link name="wrist_link">
+    <link name="$(arg link_prefix)wrist_link">
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
@@ -151,7 +153,7 @@
         </collision>
 	</link>
 	
-    <link name="hand_link">
+    <link name="$(arg link_prefix)hand_link">
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
@@ -166,85 +168,85 @@
         </collision>
 	</link>
 	
-    <link name="tool_link">
+    <link name="$(arg link_prefix)tool_link">
 	</link>
-    <link name="spoon_link">
+    <link name="$(arg link_prefix)spoon_link">
 	</link>
-    <link name="camera_rgb_optical_frame">
+    <link name="$(arg link_prefix)camera_rgb_optical_frame">
 	</link>
 
 
 	<!--Joints -->
 
     <joint name="ground_joint" type="fixed">
-        <parent link="ground_link" />
-        <child link="base_link" />
+        <parent link="$(arg link_prefix)ground_link" />
+        <child link="$(arg link_prefix)base_link" />
         <origin xyz="0 0 0" rpy="0 0 0" />
     </joint>
 
 	<joint name="joint_1" type="revolute">
-        <parent link="base_link" />
-        <child link="shoulder_link" />
+        <parent link="$(arg link_prefix)base_link" />
+        <child link="$(arg link_prefix)shoulder_link" />
 		<origin xyz="0 0 ${distance_origin_shoulder_z}" rpy="0 0 0" />
 		<axis xyz="0 0 1" />
 		<limit effort="1" velocity="1.0" lower="${limit_low_shoulder_rotation}" upper="${limit_up_shoulder_rotation}" />
 	</joint>
 
 	<joint name="joint_2" type="revolute">
-        <parent link="shoulder_link" />
-        <child link="arm_link" />
+        <parent link="$(arg link_prefix)shoulder_link" />
+        <child link="$(arg link_prefix)arm_link" />
         <origin xyz="0 0 ${distance_shoulder_arm_z}" rpy="${PI/2} ${-PI/2} 0" />
 		<limit effort="1" velocity="1.0" lower="${limit_low_arm_rotation}" upper="${limit_up_arm_rotation}" />
 		<axis xyz="0 0 1" />
 	</joint>
 
 	<joint name="joint_3" type="revolute">
-        <parent link="arm_link" />
-        <child link="elbow_link" />
+        <parent link="$(arg link_prefix)arm_link" />
+        <child link="$(arg link_prefix)elbow_link" />
         <origin xyz="${distance_arm_elbow_x} ${distance_arm_elbow_y} 0" rpy="0 0 ${-PI/2}" />
 		<limit effort="1" velocity="1.0" lower="${limit_low_elbow_rotation}" upper="${limit_up_elbow_rotation}" />
 		<axis xyz="0 0 1" />	
 	</joint>
 
 	<joint name="joint_4" type="revolute">
-        <parent link="elbow_link" />
-        <child link="forearm_link" />
+        <parent link="$(arg link_prefix)elbow_link" />
+        <child link="$(arg link_prefix)forearm_link" />
         <origin xyz="${distance_elbow_forearm_x} ${distance_elbow_forearm_y} 0" rpy="0 ${PI/2} 0" />
 		<limit effort="1" velocity="1.0" lower="${limit_low_forearm_rotation}" upper="${limit_up_forearm_rotation}" />
 		<axis xyz="0 0 1" />
 	</joint>
 
 	<joint name="joint_5" type="revolute">
-        <parent link="forearm_link" />
-        <child link="wrist_link" />
+        <parent link="$(arg link_prefix)forearm_link" />
+        <child link="$(arg link_prefix)wrist_link" />
 		<origin xyz="0 0 ${distance_forearm_wrist_z}" rpy="0 ${-PI/2} 0" />
 		<limit effort="1" velocity="1.0" lower="${limit_low_wrist_rotation}" upper="${limit_up_wrist_rotation}" />
 		<axis xyz="0 0 1" />
 	</joint>
 
 	<joint name="joint_6" type="revolute">
-        <parent link="wrist_link" />
-        <child link="hand_link" />
+        <parent link="$(arg link_prefix)wrist_link" />
+        <child link="$(arg link_prefix)hand_link" />
         <origin xyz="${distance_wrist_hand_x} ${distance_wrist_hand_y} 0" rpy="0 ${PI/2} 0" />
 		<limit effort="1" velocity="1.0" lower="${limit_low_hand_rotation}" upper="${limit_up_hand_rotation}" />
 		<axis xyz="0 0 1" />
 	</joint>
 
 	<joint name="hand_tool_joint" type="fixed">
-        <parent link="hand_link" />
-        <child link="tool_link" />
+        <parent link="$(arg link_prefix)hand_link" />
+        <child link="$(arg link_prefix)tool_link" />
         <origin xyz="0 0 ${distance_hand_tool}" rpy="${-PI/2} ${-PI/2} 0" />
     </joint>
 
 	<joint name="hand_spoon_joint" type="fixed">
-        <parent link="hand_link" />
-        <child link="spoon_link" />
+        <parent link="$(arg link_prefix)hand_link" />
+        <child link="$(arg link_prefix)spoon_link" />
         <origin xyz="${spoon_offset_left} ${spoon_offset_up} ${spoon_offset_forward}" rpy="0 0 0" />
 	</joint>
     
     <joint name="kinect_camera_joint" type="fixed">
-        <parent link="base_link" />
-        <child link="camera_rgb_optical_frame" />
+        <parent link="$(arg link_prefix)base_link" />
+        <child link="$(arg link_prefix)camera_rgb_optical_frame" />
         <origin xyz="0 -0.2 0" rpy="0 0 0" />
 	</joint>
 
