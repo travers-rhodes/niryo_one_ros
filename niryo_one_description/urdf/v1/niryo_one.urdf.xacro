@@ -187,9 +187,7 @@
 	
     <link name="$tool_link">
 	</link>
-    <link name="$(arg link_prefix)spoon_link">
-	</link>
-    <link name="$(arg link_prefix)camera_rgb_optical_frame">
+    <link name="spoon_link">
 	</link>
 
 

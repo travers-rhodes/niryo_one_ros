@@ -80,6 +80,8 @@
 	
     <link name="tool_link">
 	</link>
+    <link name="spoon_link">
+	</link>
 
 
 	<!--Joints -->
