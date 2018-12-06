@@ -33,6 +33,9 @@
 	<xacro:property name="distance_wrist_hand_x" value="0.018" /> 
     <xacro:property name="distance_wrist_hand_y" value="0" />
     <xacro:property name="distance_hand_tool" value="0.00" />
+    <xacro:property name="spoon_offset_left" value="0.125" />
+    <xacro:property name="spoon_offset_up" value="0.0" />
+    <xacro:property name="spoon_offset_forward" value="0.031" />
 	
 	<xacro:property name="PI" value="3.14159265359" />
 
@@ -139,6 +142,12 @@
         <parent link="hand_link" />
         <child link="tool_link" />
         <origin xyz="0 0 ${distance_hand_tool}" rpy="${-PI/2} ${-PI/2} 0" />
+    </joint>
+
+	<joint name="hand_spoon_joint" type="fixed">
+        <parent link="hand_link" />
+        <child link="spoon_link" />
+        <origin xyz="${spoon_offset_left} ${spoon_offset_up} ${spoon_offset_forward}" rpy="0 0 0" />
 	</joint>
 
 </robot>
