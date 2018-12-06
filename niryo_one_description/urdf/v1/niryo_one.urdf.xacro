@@ -30,9 +30,13 @@
     <xacro:property name="distance_elbow_forearm_x" value="0.037" />
     <xacro:property name="distance_elbow_forearm_y" value="0.032" />
     <xacro:property name="distance_forearm_wrist_z" value="0.180" />
-    <xacro:property name="distance_wrist_hand_x" value="0.018" />
-    <xacro:property name="distance_wrist_hand_y" value="0" />
-    <xacro:property name="distance_hand_tool" value="0.00" />
+    <xacro:property name="distance_wrist_hand_x" value="0.0164" />
+    <xacro:property name="distance_wrist_hand_y" value="-0.0055" />
+    <xacro:property name="distance_hand_tool" value="0.0073" />
+    <!-- TSR 2018-19-07 Adding info about test spoon-->
+    <xacro:property name="spoon_offset_left" value="0.125" />
+    <xacro:property name="spoon_offset_up" value="0.0" />
+    <xacro:property name="spoon_offset_forward" value="0.031" />
 	
 	<xacro:property name="PI" value="3.14159265359" />
 
@@ -181,7 +185,11 @@
         </collision>
 	</link>
 	
-    <link name="tool_link">
+    <link name="$tool_link">
+	</link>
+    <link name="$(arg link_prefix)spoon_link">
+	</link>
+    <link name="$(arg link_prefix)camera_rgb_optical_frame">
 	</link>
 
 
@@ -245,6 +253,11 @@
         <parent link="hand_link" />
         <child link="tool_link" />
         <origin xyz="0 0 ${distance_hand_tool}" rpy="${-PI/2} ${-PI/2} 0" />
-	</joint>
+    </joint>
 
+	<joint name="hand_spoon_joint" type="fixed">
+        <parent link="hand_link" />
+        <child link="spoon_link" />
+        <origin xyz="${spoon_offset_left} ${spoon_offset_up} ${spoon_offset_forward}" rpy="0 0 0" />
+	</joint>
 </robot>
