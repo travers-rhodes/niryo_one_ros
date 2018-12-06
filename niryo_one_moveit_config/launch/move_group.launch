@@ -1,6 +1,9 @@
 <launch>
+  <arg name="link_prefix" default=""/>
 
-  <include file="$(find niryo_one_moveit_config)/launch/planning_context.launch" />
+  <include file="$(find niryo_one_moveit_config)/launch/planning_context.launch">
+    <arg name="link_prefix" value="$(arg link_prefix)"/> 
+  </include>
 
   <!-- GDB Debug Option -->
   <arg name="debug" default="false" />

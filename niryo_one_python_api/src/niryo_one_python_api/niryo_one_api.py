@@ -89,15 +89,15 @@ class NiryoOne:
     class __NiryoOne:
 
         def __init__(self):
-            self.service_timeout = rospy.get_param("/niryo_one/python_api/service_timeout")
-            self.action_connection_timeout = rospy.get_param("/niryo_one/python_api/action_connection_timeout")
-            self.action_execute_timeout = rospy.get_param("/niryo_one/python_api/action_execute_timeout")
-            self.action_preempt_timeout = rospy.get_param("/niryo_one/python_api/action_preempt_timeout")
+            self.service_timeout = rospy.get_param("niryo_one/python_api/service_timeout")
+            self.action_connection_timeout = rospy.get_param("niryo_one/python_api/action_connection_timeout")
+            self.action_execute_timeout = rospy.get_param("niryo_one/python_api/action_execute_timeout")
+            self.action_preempt_timeout = rospy.get_param("niryo_one/python_api/action_preempt_timeout")
           
-            self.tool_command_list = rospy.get_param("/niryo_one_tools/command_list") 
+            self.tool_command_list = rospy.get_param("niryo_one_tools/command_list") 
 
             # Highlight publisher (to highlight blocks in Blockly interface)
-            self.highlight_block_publisher = rospy.Publisher('/niryo_one/blockly/highlight_block', String, queue_size=10)
+            self.highlight_block_publisher = rospy.Publisher('niryo_one/blockly/highlight_block', String, queue_size=10)
             
             rospy.sleep(0.1)
 
@@ -251,7 +251,7 @@ class NiryoOne:
             return self.execute_action('niryo_one/commander/robot_action', RobotMoveAction, goal)
 
         def set_arm_max_velocity(self, percentage):
-            result = self.call_service('/niryo_one/commander/set_max_velocity_scaling_factor',
+            result = self.call_service('niryo_one/commander/set_max_velocity_scaling_factor',
                     SetInt, [percentage])
             if result.status != 200:
                 raise NiryoOneException(result.message)

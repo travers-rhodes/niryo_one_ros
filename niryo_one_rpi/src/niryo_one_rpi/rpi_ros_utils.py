@@ -27,9 +27,9 @@ from niryo_one_msgs.srv import SetInt
 def send_hotspot_command():
     rospy.loginfo("HOTSPOT")
     send_led_state(5)
-    rospy.wait_for_service('/niryo_one/wifi/set_hotspot')
+    rospy.wait_for_service('niryo_one/wifi/set_hotspot')
     try:
-        set_hotspot = rospy.ServiceProxy('/niryo_one/wifi/set_hotspot', SetInt)
+        set_hotspot = rospy.ServiceProxy('niryo_one/wifi/set_hotspot', SetInt)
         set_hotspot()
     except rospy.ServiceException, e:
         rospy.logwarn("Could not call set_hotspot service")
@@ -38,8 +38,8 @@ def send_hotspot_command():
 def send_trigger_sequence_autorun():
     rospy.loginfo("Trigger sequence autorun from button")
     try:
-        rospy.wait_for_service('/niryo_one/sequences/trigger_sequence_autorun', 0.1)
-        trigger = rospy.ServiceProxy('/niryo_one/sequences/trigger_sequence_autorun', SetInt)
+        rospy.wait_for_service('niryo_one/sequences/trigger_sequence_autorun', 0.1)
+        trigger = rospy.ServiceProxy('niryo_one/sequences/trigger_sequence_autorun', SetInt)
         trigger(1) # value doesn't matter, it will switch state on the server
     except (rospy.ServiceException, rospy.ROSException), e:
         return
@@ -50,11 +50,11 @@ def send_shutdown_command():
     send_led_state(1)
     rospy.loginfo("Activate learning mode")
     try:
-        rospy.wait_for_service('/niryo_one/activate_learning_mode', 1)
+        rospy.wait_for_service('niryo_one/activate_learning_mode', 1)
     except rospy.ROSException, e:
         pass
     try:
-        activate_learning_mode = rospy.ServiceProxy('/niryo_one/activate_learning_mode', SetInt)
+        activate_learning_mode = rospy.ServiceProxy('niryo_one/activate_learning_mode', SetInt)
         activate_learning_mode(1)
     except rospy.ServiceException, e:
         pass
@@ -65,9 +65,9 @@ def send_shutdown_command():
         rospy.loginfo("Can't exec shutdown cmd")
 
 def send_led_state(state):
-    rospy.wait_for_service('/niryo_one/rpi/set_led_state')
+    rospy.wait_for_service('niryo_one/rpi/set_led_state')
     try:
-        set_led = rospy.ServiceProxy('/niryo_one/rpi/set_led_state', SetInt)
+        set_led = rospy.ServiceProxy('niryo_one/rpi/set_led_state', SetInt)
         set_led(state)
     except rospy.ServiceException, e:
         rospy.logwarn("Could not call set_led_state service")

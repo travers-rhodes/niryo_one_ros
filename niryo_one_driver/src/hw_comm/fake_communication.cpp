@@ -26,13 +26,13 @@ FakeCommunication::FakeCommunication(int hardware_version)
     this->hardware_version = hardware_version;
 
     double pos_0, pos_1, pos_2;
-    ros::param::get("/niryo_one/motors/stepper_1_home_position", pos_0);
-    ros::param::get("/niryo_one/motors/stepper_2_home_position", pos_1);
-    ros::param::get("/niryo_one/motors/stepper_3_home_position", pos_2);
+    ros::param::get("niryo_one/motors/stepper_1_home_position", pos_0);
+    ros::param::get("niryo_one/motors/stepper_2_home_position", pos_1);
+    ros::param::get("niryo_one/motors/stepper_3_home_position", pos_2);
    
     if (hardware_version == 1) {
         double pos_3;
-        ros::param::get("/niryo_one/motors/stepper_4_home_position", pos_3);
+        ros::param::get("niryo_one/motors/stepper_4_home_position", pos_3);
 
         echo_pos[0] = pos_0;
         echo_pos[1] = pos_1;

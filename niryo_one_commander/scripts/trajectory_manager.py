@@ -35,12 +35,12 @@ class TrajectoryManager:
     def __init__(self, trajectory_dir): 
         self.fh = TrajectoryFileHandler(trajectory_dir)
         self.manage_position_server = rospy.Service(
-                '/niryo_one/trajectory/manage_trajectory', ManageTrajectory, self.callback_manage_trajectory)
-        rospy.loginfo("/niryo_one/trajectory/manage_trajectory service has been created " )
+                'niryo_one/trajectory/manage_trajectory', ManageTrajectory, self.callback_manage_trajectory)
+        rospy.loginfo("niryo_one/trajectory/manage_trajectory service has been created " )
         self.get_trajectory_list_server = rospy.Service(
-                '/niryo_one/trajectory/get_trajectory_list', GetTrajectoryList, self.callback_get_trajectory_list)
-        rospy.loginfo("/niryo_one/trajectory/get_trajectory_list")
-        self.validation = rospy.get_param("/niryo_one/robot_command_validation")
+                'niryo_one/trajectory/get_trajectory_list', GetTrajectoryList, self.callback_get_trajectory_list)
+        rospy.loginfo("niryo_one/trajectory/get_trajectory_list")
+        self.validation = rospy.get_param("niryo_one/robot_command_validation")
         self.parameters_validation = ParametersValidation(self.validation)
 
     def callback_get_trajectory_list(self, req = None): 

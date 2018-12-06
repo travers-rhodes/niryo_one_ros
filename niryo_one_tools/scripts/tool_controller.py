@@ -194,7 +194,7 @@ class ToolController:
             'niryo_one/change_tool', SetInt, self.callback_change_tool)
       
         self.current_tool_id_publisher = rospy.Publisher(
-                '/niryo_one/current_tool_id', Int32, queue_size=1)
+                'niryo_one/current_tool_id', Int32, queue_size=1)
 
         rospy.Timer(rospy.Duration(1/1.0), self.publish_current_tool_id) 
     

@@ -72,14 +72,14 @@ class InputRegisterDataBlock(NiryoOneDataBlock):
         super(InputRegisterDataBlock, self).__init__()
 
     def start_ros_subscribers(self):
-        self.joint_state_sub = rospy.Subscriber('/joint_states', JointState, self.sub_joint_states)
-        self.robot_state_sub  = rospy.Subscriber('/niryo_one/robot_state', RobotState, self.sub_robot_state)
-        self.selected_tool_id_sub  = rospy.Subscriber('/niryo_one/current_tool_id', Int32, self.sub_selected_tool_id)
-        self.learning_mode_sub  = rospy.Subscriber('/niryo_one/learning_mode', Bool, self.sub_learning_mode)
-        self.joystick_enabled_sub  = rospy.Subscriber('/niryo_one/joystick_interface/is_enabled', Bool, self.sub_joystick_enabled)
-        self.hardware_status_sub  = rospy.Subscriber('/niryo_one/hardware_status', HardwareStatus, self.sub_hardware_status)
-        self.ros_log_status_sub  = rospy.Subscriber('/niryo_one/rpi/ros_log_status', LogStatus, self.sub_ros_log_status)
-        self.software_version_sub  = rospy.Subscriber('/niryo_one/software_version', SoftwareVersion, self.sub_software_version)
+        self.joint_state_sub = rospy.Subscriber('joint_states', JointState, self.sub_joint_states)
+        self.robot_state_sub  = rospy.Subscriber('niryo_one/robot_state', RobotState, self.sub_robot_state)
+        self.selected_tool_id_sub  = rospy.Subscriber('niryo_one/current_tool_id', Int32, self.sub_selected_tool_id)
+        self.learning_mode_sub  = rospy.Subscriber('niryo_one/learning_mode', Bool, self.sub_learning_mode)
+        self.joystick_enabled_sub  = rospy.Subscriber('niryo_one/joystick_interface/is_enabled', Bool, self.sub_joystick_enabled)
+        self.hardware_status_sub  = rospy.Subscriber('niryo_one/hardware_status', HardwareStatus, self.sub_hardware_status)
+        self.ros_log_status_sub  = rospy.Subscriber('niryo_one/rpi/ros_log_status', LogStatus, self.sub_ros_log_status)
+        self.software_version_sub  = rospy.Subscriber('niryo_one/software_version', SoftwareVersion, self.sub_software_version)
 
     def stop_ros_subscribers(self):
         self.joint_state_sub.unregister()

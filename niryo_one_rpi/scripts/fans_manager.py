@@ -52,7 +52,7 @@ class FansManager:
         self.set_fans(not self.learning_mode_on)
 
         self.learning_mode_subscriber = rospy.Subscriber(
-                '/niryo_one/learning_mode', Bool, self.callback_learning_mode)
+                'niryo_one/learning_mode', Bool, self.callback_learning_mode)
 
 
     def callback_learning_mode(self, msg):

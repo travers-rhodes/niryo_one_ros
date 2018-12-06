@@ -38,7 +38,7 @@ class DiscreteInputDataBlock(NiryoOneDataBlock):
         super(DiscreteInputDataBlock, self).__init__()
 
     def start_ros_subscribers(self):
-        self.digital_io_state_sub = rospy.Subscriber('/niryo_one/rpi/digital_io_state', DigitalIOState, self.sub_digital_io_state)
+        self.digital_io_state_sub = rospy.Subscriber('niryo_one/rpi/digital_io_state', DigitalIOState, self.sub_digital_io_state)
 
     def stop_ros_subscribers(self):
         self.digital_io_state_sub.unregister()

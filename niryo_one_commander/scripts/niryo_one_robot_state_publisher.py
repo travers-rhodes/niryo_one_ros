@@ -66,11 +66,11 @@ class NiryoRobotStatePublisher:
 
         # State publisher
         self.niryo_one_robot_state_publisher = rospy.Publisher(
-                '/niryo_one/robot_state', RobotState, queue_size=5)
+                'niryo_one/robot_state', RobotState, queue_size=5)
 
         # Get params from rosparams
-        rate_tf_listener = rospy.get_param("/niryo_one/robot_state/rate_tf_listener")
-        rate_publish_state = rospy.get_param("/niryo_one/robot_state/rate_publish_state")
+        rate_tf_listener = rospy.get_param("niryo_one/robot_state/rate_tf_listener")
+        rate_publish_state = rospy.get_param("niryo_one/robot_state/rate_publish_state")
 
         rospy.Timer(rospy.Duration(1.0/rate_tf_listener), self.get_robot_pose)
         rospy.Timer(rospy.Duration(1.0/rate_publish_state), self.publish_state)

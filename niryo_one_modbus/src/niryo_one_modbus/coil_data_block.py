@@ -79,9 +79,9 @@ class CoilDataBlock(NiryoOneDataBlock):
 
 
     def set_pin_mode(self, pin, mode):
-        self.call_ros_service('/niryo_one/rpi/set_digital_io_mode', SetDigitalIO, [pin, mode])
+        self.call_ros_service('niryo_one/rpi/set_digital_io_mode', SetDigitalIO, [pin, mode])
 
     def set_pin_state(self, pin, state):
-        self.call_ros_service('/niryo_one/rpi/set_digital_io_state', SetDigitalIO, [pin, state])
+        self.call_ros_service('niryo_one/rpi/set_digital_io_state', SetDigitalIO, [pin, state])
 
 

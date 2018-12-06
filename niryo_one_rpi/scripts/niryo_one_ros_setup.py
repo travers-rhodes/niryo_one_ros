@@ -139,12 +139,12 @@ class NiryoOneRosSetup:
         self.process_state_publish_rate = rospy.get_param("~process_state_publish_rate")
 
         self.process_state_publisher = rospy.Publisher(
-                '/niryo_one/rpi/process_state', ProcessState, queue_size=1)
+                'niryo_one/rpi/process_state', ProcessState, queue_size=1)
 
         rospy.Timer(rospy.Duration(1.0/self.process_state_publish_rate), self.publish_process_state)
         
         self.manage_process_server = rospy.Service(
-                '/niryo_one/rpi/manage_process', ManageProcess, self.callback_manage_process)
+                'niryo_one/rpi/manage_process', ManageProcess, self.callback_manage_process)
 
         self.start_init_processes()
         #self.start_all_processes()
