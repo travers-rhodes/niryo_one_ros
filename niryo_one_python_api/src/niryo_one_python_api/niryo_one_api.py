@@ -383,8 +383,7 @@ class NiryoOne:
             timeout = rospy.get_time() + 2.0
             while self.learning_mode_on is None:
                 rospy.sleep(0.05)
-                if rospy.get_time() > timeout:
-                    raise NiryoOneException('Timeout: could not get learning mode (/niryo_one/learning_mode topic)')
+                if rospy.get_time() > timeout: raise NiryoOneException('Timeout: could not get learning mode (/niryo_one/learning_mode topic)')
             return self.learning_mode_on
 
         def get_digital_io_state(self):
