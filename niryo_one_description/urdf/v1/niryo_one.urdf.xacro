@@ -185,7 +185,7 @@
         </collision>
 	</link>
 	
-    <link name="$tool_link">
+    <link name="tool_link">
 	</link>
     <link name="spoon_link">
 	</link>
