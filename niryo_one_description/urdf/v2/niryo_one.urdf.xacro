@@ -29,8 +29,8 @@
     <xacro:property name="distance_shoulder_arm_z" value="0.080" />
     <xacro:property name="distance_arm_elbow_x" value="0.210" />
     <xacro:property name="distance_arm_elbow_y" value="0.0" />
-    <xacro:property name="distance_elbow_forearm_x" value="0.037" />
-    <xacro:property name="distance_elbow_forearm_y" value="0.032" />
+    <xacro:property name="distance_elbow_forearm_x" value="0.0415" />
+    <xacro:property name="distance_elbow_forearm_y" value="0.030" />
     <xacro:property name="distance_forearm_wrist_z" value="0.180" />
     <xacro:property name="distance_wrist_hand_x" value="0.0164" />
     <xacro:property name="distance_wrist_hand_y" value="-0.0055" />
