@@ -5,6 +5,7 @@
     -->
     
     <arg name="execute_on_niryo_one_raspberry_pi_image" value="false"/>
+    <arg name="hardware_version" default="1"/>
     <arg name="urdf_without_meshes" default="false" />
     <include file="$(find niryo_one_bringup)/launch/niryo_one_base.launch" pass_all_args="true"/>
 
