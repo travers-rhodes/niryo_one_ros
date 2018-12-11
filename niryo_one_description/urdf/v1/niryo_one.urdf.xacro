@@ -20,6 +20,9 @@
 -->
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="niryo_one">
+
+  <!-- Import all Gazebo-customization elements, including Gazebo colors -->
+  <xacro:include filename="$(find niryo_one_description)/urdf/v1/niryo_one.gazebo" />
 	
 	<!-- Properties -->
 
@@ -37,6 +40,11 @@
     <xacro:property name="spoon_offset_left" value="0.125" />
     <xacro:property name="spoon_offset_up" value="0.0" />
     <xacro:property name="spoon_offset_forward" value="0.031" />
+    <!-- TSR 2018-19-07 Adding info about camera -->
+    <xacro:property name="camera_width" value="0.01" />
+    <xacro:property name="camera_pitch" value="0.3" />
+    <xacro:property name="camera_height" value="0.04" />
+
 	
 	<xacro:property name="PI" value="3.14159265359" />
 
@@ -56,6 +64,14 @@
 
 	<!-- Links -->
 
+  <!-- Used for fixing robot to Gazebo 'base_link' -->
+  <link name="world"/>
+
+  <joint name="fixed" type="fixed">
+    <parent link="world"/>
+    <child link="ground_link"/>
+  </joint>
+
     <link name="ground_link"/>
 
     <link name="base_link">
@@ -74,6 +90,14 @@
                 <mesh filename="package://niryo_one_description/meshes/v1/stl/base_link.stl" />
             </geometry>
         </collision>
+        <inertial>
+          <origin xyz="0 0 ${distance_origin_shoulder_z/2}" rpy="0 0 0"/>
+          <mass value="0.5"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
 	</link>
 
     <link name="shoulder_link">
@@ -92,6 +116,14 @@
                 <mesh filename="package://niryo_one_description/meshes/v1/stl/shoulder_link.stl" />
             </geometry>
         </collision>
+        <inertial>
+          <origin xyz="0 0 ${distance_shoulder_arm_z/2}" rpy="0 0 0"/>
+          <mass value="0.5"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
 	</link>
 
     <link name="arm_link">
@@ -110,6 +142,14 @@
                 <mesh filename="package://niryo_one_description/meshes/v1/stl/arm_link.stl" />
             </geometry>
         </collision>
+        <inertial>
+          <origin xyz="${distance_arm_elbow_x/2} ${distance_arm_elbow_y/2} 0" rpy="0 0 0"/>
+          <mass value="0.5"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
 	</link>
 	
     <link name="elbow_link">
@@ -129,6 +169,14 @@
                 <mesh filename="package://niryo_one_description/meshes/v1/stl/elbow_link.stl" />
             </geometry>
         </collision>
+        <inertial>
+          <origin xyz="${distance_elbow_forearm_x/2} ${distance_elbow_forearm_y/2} 0" rpy="0 0 0"/>
+          <mass value="0.5"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
 	</link>
 
     <link name="forearm_link">
@@ -147,6 +195,14 @@
                 <mesh filename="package://niryo_one_description/meshes/v1/stl/forearm_link.stl" />
             </geometry>
         </collision>
+        <inertial>
+          <origin xyz="0 0 ${distance_forearm_wrist_z/2}" rpy="0 0 0"/>
+          <mass value="0.5"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
 	</link>
 
     <link name="wrist_link">
@@ -165,6 +221,14 @@
                 <mesh filename="package://niryo_one_description/meshes/v1/stl/wrist_link.stl" />
             </geometry>
         </collision>
+        <inertial>
+          <origin xyz="${distance_wrist_hand_x/2} ${distance_wrist_hand_y/2} 0" rpy="0 0 0"/>
+          <mass value="0.5"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
 	</link>
 	
     <link name="hand_link">
@@ -183,12 +247,80 @@
                 <mesh filename="package://niryo_one_description/meshes/v1/stl/hand_link.stl" />
             </geometry>
         </collision>
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="0.5"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
 	</link>
 	
     <link name="tool_link">
 	</link>
     <link name="spoon_link">
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+                <mesh filename="package://niryo_one_description/meshes/v1/stl/spoon.stl" />
+			</geometry>
+			<material name="">
+				<color rgba="0.6 0 0 1" />
+			</material>
+		</visual>
+        <collision>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://niryo_one_description/meshes/v1/stl/spoon.stl" />
+            </geometry>
+        </collision>
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="0.5"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
 	</link>
+
+  <!-- Camera -->
+  <link name="camera_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<box size="${camera_width} ${camera_width} ${camera_width}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<box size="${camera_width} ${camera_width} ${camera_width}"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <!-- generate an optical frame http://www.ros.org/reps/rep-0103.html#suffix-frames
+      so that ros and opencv can operate on the camera frame correctly -->
+  <joint name="camera_optical_joint" type="fixed">
+    <!-- these values have to be these values otherwise the gazebo camera image
+        won't be aligned properly with the frame it is supposedly originating from -->
+    <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+    <parent link="camera_link"/>
+    <child link="camera_link_optical"/>
+  </joint>
+
+  <link name="camera_link_optical">
+  </link>
 
 
 	<!--Joints -->
@@ -251,7 +383,13 @@
         <parent link="hand_link" />
         <child link="tool_link" />
         <origin xyz="0 0 ${distance_hand_tool}" rpy="${-PI/2} ${-PI/2} 0" />
-    </joint>
+        </joint>
+
+	<joint name="camera_link_joint" type="fixed">
+        <parent link="hand_link" />
+        <child link="camera_link" />
+        <origin xyz="0.01 ${camera_height} ${spoon_offset_forward}" rpy="${-PI/2} 0 ${-camera_pitch}" />
+        </joint>
 
 	<joint name="hand_spoon_joint" type="fixed">
         <parent link="hand_link" />
