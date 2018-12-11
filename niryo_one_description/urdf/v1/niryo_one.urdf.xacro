@@ -92,11 +92,11 @@
         </collision>
         <inertial>
           <origin xyz="0 0 ${distance_origin_shoulder_z/2}" rpy="0 0 0"/>
-          <mass value="0.5"/>
+          <mass value="0.05"/>
           <inertia
-            ixx="1.0" ixy="0.0" ixz="0.0"
-            iyy="1.0" iyz="0.0"
-            izz="1.0"/>
+            ixx="1e-3" ixy="0.0" ixz="0.0"
+            iyy="1e-3" iyz="0.0"
+            izz="1e-3"/>
         </inertial>
 	</link>
 
@@ -118,11 +118,11 @@
         </collision>
         <inertial>
           <origin xyz="0 0 ${distance_shoulder_arm_z/2}" rpy="0 0 0"/>
-          <mass value="0.5"/>
+          <mass value="0.05"/>
           <inertia
-            ixx="1.0" ixy="0.0" ixz="0.0"
-            iyy="1.0" iyz="0.0"
-            izz="1.0"/>
+            ixx="1e-3" ixy="0.0" ixz="0.0"
+            iyy="1e-3" iyz="0.0"
+            izz="1e-3"/>
         </inertial>
 	</link>
 
@@ -144,11 +144,11 @@
         </collision>
         <inertial>
           <origin xyz="${distance_arm_elbow_x/2} ${distance_arm_elbow_y/2} 0" rpy="0 0 0"/>
-          <mass value="0.5"/>
+          <mass value="0.05"/>
           <inertia
-            ixx="1.0" ixy="0.0" ixz="0.0"
-            iyy="1.0" iyz="0.0"
-            izz="1.0"/>
+            ixx="1e-3" ixy="0.0" ixz="0.0"
+            iyy="1e-3" iyz="0.0"
+            izz="1e-3"/>
         </inertial>
 	</link>
 	
@@ -171,11 +171,11 @@
         </collision>
         <inertial>
           <origin xyz="${distance_elbow_forearm_x/2} ${distance_elbow_forearm_y/2} 0" rpy="0 0 0"/>
-          <mass value="0.5"/>
+          <mass value="0.05"/>
           <inertia
-            ixx="1.0" ixy="0.0" ixz="0.0"
-            iyy="1.0" iyz="0.0"
-            izz="1.0"/>
+            ixx="1e-3" ixy="0.0" ixz="0.0"
+            iyy="1e-3" iyz="0.0"
+            izz="1e-3"/>
         </inertial>
 	</link>
 
@@ -197,11 +197,11 @@
         </collision>
         <inertial>
           <origin xyz="0 0 ${distance_forearm_wrist_z/2}" rpy="0 0 0"/>
-          <mass value="0.5"/>
+          <mass value="0.05"/>
           <inertia
-            ixx="1.0" ixy="0.0" ixz="0.0"
-            iyy="1.0" iyz="0.0"
-            izz="1.0"/>
+            ixx="1e-3" ixy="0.0" ixz="0.0"
+            iyy="1e-3" iyz="0.0"
+            izz="1e-3"/>
         </inertial>
 	</link>
 
@@ -223,11 +223,11 @@
         </collision>
         <inertial>
           <origin xyz="${distance_wrist_hand_x/2} ${distance_wrist_hand_y/2} 0" rpy="0 0 0"/>
-          <mass value="0.5"/>
+          <mass value="0.05"/>
           <inertia
-            ixx="1.0" ixy="0.0" ixz="0.0"
-            iyy="1.0" iyz="0.0"
-            izz="1.0"/>
+            ixx="1e-3" ixy="0.0" ixz="0.0"
+            iyy="1e-3" iyz="0.0"
+            izz="1e-3"/>
         </inertial>
 	</link>
 	
@@ -249,11 +249,11 @@
         </collision>
         <inertial>
           <origin xyz="0 0 0" rpy="0 0 0"/>
-          <mass value="0.5"/>
+          <mass value="0.05"/>
           <inertia
-            ixx="1.0" ixy="0.0" ixz="0.0"
-            iyy="1.0" iyz="0.0"
-            izz="1.0"/>
+            ixx="1e-3" ixy="0.0" ixz="0.0"
+            iyy="1e-3" iyz="0.0"
+            izz="1e-3"/>
         </inertial>
 	</link>
 	
@@ -276,12 +276,12 @@
             </geometry>
         </collision>
         <inertial>
-          <origin xyz="0 0 0" rpy="0 0 0"/>
-          <mass value="0.5"/>
+          <origin xyz="${-spoon_offset_left} 0 0" rpy="0 0 0"/>
+          <mass value="0.05"/>
           <inertia
-            ixx="1.0" ixy="0.0" ixz="0.0"
-            iyy="1.0" iyz="0.0"
-            izz="1.0"/>
+            ixx="1e-3" ixy="0.0" ixz="0.0"
+            iyy="1e-3" iyz="0.0"
+            izz="1e-3"/>
         </inertial>
 	</link>
 
@@ -396,4 +396,67 @@
         <child link="spoon_link" />
         <origin xyz="${spoon_offset_left} ${spoon_offset_up} ${spoon_offset_forward}" rpy="0 0 0" />
 	</joint>
+
+<!-- Actuators -->
+
+<transmission name="transmission_1">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="joint_1">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="stepper_motor_1">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>50</mechanicalReduction>
+  </actuator>
+</transmission>
+<transmission name="transmission_2">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="joint_2">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="stepper_motor_2">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>50</mechanicalReduction>
+  </actuator>
+</transmission>
+<transmission name="transmission_3">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="joint_3">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="stepper_motor_3">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>50</mechanicalReduction>
+  </actuator>
+</transmission>
+<transmission name="transmission_4">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="joint_4">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="stepper_motor_4">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>50</mechanicalReduction>
+  </actuator>
+</transmission>
+<transmission name="transmission_5">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="joint_5">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="stepper_motor_5">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>50</mechanicalReduction>
+  </actuator>
+</transmission>
+<transmission name="transmission_6">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="joint_6">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="stepper_motor_6">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>50</mechanicalReduction>
+  </actuator>
+</transmission>
 </robot>
