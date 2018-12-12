@@ -70,6 +70,7 @@
   <joint name="fixed" type="fixed">
     <parent link="world"/>
     <child link="ground_link"/>
+    <origin xyz="0 0 1.02" rpy="0 0 0" />
   </joint>
 
     <link name="ground_link"/>
